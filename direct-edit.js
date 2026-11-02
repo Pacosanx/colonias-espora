@@ -55,5 +55,5 @@ $('inlineText').addEventListener('keydown',e=>{if(e.isComposing)return;if(e.key=
 $('inlineText').addEventListener('blur',()=>finishInlineEdit());
 updateDirectUI();
 
-document.fonts.load('28px Clamofte').then(()=>{schedule();updateDirectUI()}).catch(()=>status('No se pudo cargar Clamofte.'));
+document.fonts.load('28px Clamofte').then(()=>{schedule();updateDirectUI()}).catch(()=>{schedule();updateDirectUI()});
 
