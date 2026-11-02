@@ -113,21 +113,22 @@ function setMode(next){mode=next;dockElementControls();$('compositionTools').hid
 function fit(){const box=document.querySelector('.workspace');const r=mode==='piece'?ratio():1;const rect=box.getBoundingClientRect();const available=Math.max(100,Math.min(rect.width-60,(rect.height-40)/r)),w=mode==='piece'&&manualViewWidth?Math.min(manualViewWidth,available):available;$('art').style.width=w+'px';$('art').style.height=(w*r)+'px';$('art').style.aspectRatio='1 / '+r;if(typeof updateDirectUI==='function')updateDirectUI();}
 window.addEventListener('resize',fit);
 function generate(){
- items=[];groups=[];cache.clear();sceneSeed++;const rnd=k=>hash(k,sceneSeed,sceneSeed),r=ratio();
+ items=[];groups=[];cache.clear();sceneSeed=Math.floor(Math.random()*1000000000);const rnd=k=>hash(k,sceneSeed,sceneSeed),r=ratio();
  // Tres concentraciones desiguales dentro de una sola banda; sus extremos se disuelven.
  const centers=[{x:.16+rnd(1)*.07,y:.5+(rnd(2)-.5)*.06/r},{x:.48+rnd(3)*.10,y:.5+(rnd(4)-.5)*.1/r},{x:.87+rnd(5)*.05,y:.5+(rnd(6)-.5)*.07/r}];
  const families={rose:['#ff4c52','#f58bc3','#f58bc3'],amber:['#ff9c20','#ffc21c','#ffc21c'],green:['#27633f','#6a983a','#dce642']};
- function put(preset,x,y,w,family,extra={}){const item=newItem(preset,x,y,w),cs=families[family]??[family,family,family];Object.assign(item.style,{c1:cs[0],c2:cs[1],c3:cs[2],seed:Math.floor(rnd(item.id+80)*100000),size:78,blur:10,core:0,grain:28,porosity:20,halo:0,opacity:75,irregularity:2},extra);item.role=w>.16?'mass':w>.035?'body':'satellite';items.push(item);return item}
+ let variationIndex=0;
+ function put(preset,x,y,w,family,extra={}){const n=variationIndex++,v=k=>rnd(3000+n*17+k);if(w>.035&&preset==='halo'&&v(1)<.28)preset=v(2)<.5?'pair':'capsule';if(w>.035&&families[family]&&v(3)<.38)family=['rose','amber','green'][Math.floor(v(4)*3)];w*=w>.035?.65+v(5)*.75:.75+v(5)*.5;x+=(v(6)-.5)*.09;y+=(v(7)-.5)*.12/r;const item=newItem(preset,x,y,w),cs=families[family]??[family,family,family];Object.assign(item.style,{c1:cs[0],c2:cs[1],c3:cs[2],seed:Math.floor(v(8)*100000),size:78,blur:10,core:0,grain:28,porosity:20,halo:0,opacity:75,irregularity:2},extra);item.role=w>.16?'mass':w>.035?'body':'satellite';items.push(item);return item}
  // Pocas masas amplias, tratadas de modo distinto y separadas por aperturas.
  put('halo',centers[0].x-.045,centers[0].y-.035/r,.24,'rose',{opacity:62,porosity:42,blur:13});
  put('halo',centers[1].x+.01,centers[1].y+.035/r,.20,'amber',{opacity:53,porosity:45});
  put('halo',centers[2].x+.065,centers[2].y-.065/r,.28,'rose',{opacity:52,porosity:64,blur:15});
  // Cuerpos que conectan las concentraciones, alternando por encima y debajo del eje.
  const bridges=[{x:.32,y:-.035,w:.13,f:'rose'},{x:.43,y:.065,w:.115,f:'amber'},{x:.49,y:-.060,w:.16,f:'rose'},{x:.66,y:.025,w:.12,f:'green'},{x:.77,y:-.010,w:.105,f:'rose'}];
- bridges.forEach((b,k)=>put('halo',b.x+(rnd(k+700)-.5)*.03,.5+b.y/r,b.w,b.f,{opacity:k===2?57:72,porosity:k%2?12:28,blur:10,blend:k===3?'multiply':'source-over'}));
+ bridges.forEach((b,k)=>{if(rnd(k+710)<.72)put('halo',b.x+(rnd(k+700)-.5)*.10,.5+b.y/r,b.w,b.f,{opacity:k===2?57:72,porosity:k%2?12:28,blur:10,blend:k===3?'multiply':'source-over'})});
  // Cuerpos medianos y cápsulas que atraviesan la dirección principal.
  centers.forEach((center,k)=>{
-  for(let j=0;j<5;j++){const u=k*100+j,x=center.x+(rnd(u+120)-.5)*.17,y=center.y+(rnd(u+150)-.5)*.16/r;
+  for(let j=0;j<3+Math.floor(rnd(k+820)*4);j++){const u=k*100+j,x=center.x+(rnd(u+120)-.5)*.24,y=center.y+(rnd(u+150)-.5)*.24/r;
    const family=['rose','amber','green'][(j+k)%3],preset=j===3?'capsule':j===4?'pair':'halo';
    put(preset,x,y,.055+rnd(u+180)*.075,family,{opacity:62+rnd(u+220)*28,blur:j===1?40:10,porosity:j===2?46:10,blend:j%3===0?'multiply':'source-over'});
   }
@@ -138,16 +139,16 @@ function generate(){
  put('arc',.32,.5+.11/r,.085,'#dce642',{arc:265,ringWidth:4,rotation:22,porosity:32});
  put('fragment',.81,.5+.06/r,.09,'rose',{arc:115,rotation:40,porosity:45,opacity:58});
  // Puntos y pequeños pares que se acumulan en núcleos y se dispersan hacia los extremos.
- const count=Math.round(45+density*1.1);
+ const count=Math.round((45+density*1.1)*(.7+rnd(870)*.6));
  for(let j=0;j<count;j++){const k=1000+j,cluster=Math.floor(rnd(k)*3),center=centers[cluster];const a=rnd(k+300)*Math.PI*2,dist=Math.pow(rnd(k+600),.8),x=center.x+Math.cos(a)*dist*.17,y=center.y+Math.sin(a)*dist*.125/r;
   const w=.0025+Math.pow(rnd(k+900),2.3)*.025,family=['#ff4c52','#f58bc3','#ffc21c','#dce642','#27633f'][Math.floor(rnd(k+1500)*5)];
   put(j%19===0?'pair':'halo',x,y,w,family,{porosity:j%6===0?50:5,opacity:55+rnd(k+1200)*40,grain:18});
  }
  // Secuencias pequeñas con pausas; arcos radiales incompletos alrededor de dos centros.
- const axis1=addGroup('axis',.18,.5-.095/r,11,1.55);axis1.angle=0;axis1.memberSize=.022;axis1.breaks=72;layoutGroup(axis1);
- const axis2=addGroup('axis',.76,.5+.10/r,13,1.35);axis2.angle=0;axis2.memberSize=.027;axis2.breaks=60;layoutGroup(axis2);
- const radial1=addGroup('radial',.35,.5+.045/r,12,6.3);radial1.sweep=215;radial1.angle=18;radial1.memberSize=.021;layoutGroup(radial1);
- const radial2=addGroup('radial',.89,.5-.025/r,10,5);radial2.sweep=170;radial2.angle=-125;radial2.memberSize=.018;layoutGroup(radial2);
+ const axis1=addGroup('axis',.12+rnd(881)*.2,.5-.095/r,7+Math.floor(rnd(882)*9),1.1+rnd(883));axis1.angle=0;axis1.memberSize=.016+rnd(884)*.015;axis1.breaks=72;layoutGroup(axis1);
+ if(rnd(885)>.3){const axis2=addGroup('axis',.65+rnd(886)*.2,.5+.10/r,7+Math.floor(rnd(887)*9),1+rnd(888));axis2.angle=0;axis2.memberSize=.018+rnd(889)*.015;axis2.breaks=60;layoutGroup(axis2)}
+ const radial1=addGroup('radial',.25+rnd(890)*.2,.5+.045/r,7+Math.floor(rnd(891)*9),4+rnd(892)*4);radial1.sweep=150+rnd(893)*130;radial1.angle=18;radial1.memberSize=.021;layoutGroup(radial1);
+ if(rnd(894)>.3){const radial2=addGroup('radial',.7+rnd(895)*.2,.5-.025/r,7+Math.floor(rnd(896)*9),4+rnd(897)*3);radial2.sweep=130+rnd(898)*120;radial2.angle=-125;radial2.memberSize=.018;layoutGroup(radial2)}
  // Envolventes desenfocadas con núcleo independiente, por detrás del texto.
  put('mold',.35,.5+.045/r,.15,'green',{filaments:70,core:72,blur:38,porosity:35,opacity:88});
  put('halo',.63,.5-.08/r,.14,'rose',{core:80,blur:90,porosity:14,opacity:84});
@@ -196,4 +197,3 @@ $('addAxis').onclick=()=>{const i=active(),g=addGroup('axis',i?.x??.5,i?.y??.5);
 $('addRadial').onclick=()=>{const i=active(),g=addGroup('radial',i?.x??.5,i?.y??.5);select(g.anchorId)};
 $('ungroup').onclick=()=>{const g=groupFor(active());if(!g)return;for(const i of items)if(i.groupId===g.id)delete i.groupId;groups=groups.filter(v=>v!==g);syncGroup();schedule()};
 syncBand();sync();setMode('piece');
-
