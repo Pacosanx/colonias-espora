@@ -23,7 +23,7 @@ function updateDirectUI(){
  const item=items.find(i=>i.id===inlineEditingId);if(!item||mode!=='piece'){finishInlineEdit();return}
  const rect=canvas.getBoundingClientRect(),b=bounds(item,rect.width,rect.height);let fontSize=item.fontSize*rect.width/760;
 
- Object.assign(input.style,{left:b.x+'px',top:b.y+'px',width:b.w+'px',height:b.h+'px',fontSize:fontSize+'px',padding:'0 2px',fontFamily:'Clamofte, Arial, sans-serif',fontWeight:'normal',color:item.container?'#fffbee':'#202c2e'});
+ Object.assign(input.style,{left:b.x+'px',top:b.y+'px',width:b.w+'px',height:b.h+'px',fontSize:fontSize+'px',padding:'0 2px',fontFamily:fontStack(item),fontWeight:'normal',color:item.container?(item.textColor??'#fffbee'):'#202c2e'});
  input.hidden=false;
 }
 function beginInlineEdit(id){
@@ -56,4 +56,3 @@ $('inlineText').addEventListener('blur',()=>finishInlineEdit());
 updateDirectUI();
 
 document.fonts.load('28px Clamofte').then(()=>{schedule();updateDirectUI()}).catch(()=>{schedule();updateDirectUI()});
-
