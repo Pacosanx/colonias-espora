@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Colonias — laboratorio gráfico</title>
   <style>
+    @font-face{font-family:'Clamofte';src:url('./fonts/Clamofte-Regular.ttf') format('truetype');font-style:normal;font-weight:400;font-display:block}
     :root{color-scheme:dark;font-family:Arial,Helvetica,sans-serif;color:#e4e5e2;background:#151716;font-size:13px}
     *{box-sizing:border-box}
     body{margin:0}
@@ -72,7 +73,7 @@
     output{cursor:text;border-bottom:1px dotted #9aab8a}
     output:focus-visible{outline:2px solid #b8de80}
     output input.numeric-entry{width:78px;padding:2px 4px;background:#30332f;color:#e4e5e2;border:0;border-radius:3px;text-align:right}
-    #status{min-height:16px;margin:0;color:#c5e899;font-size:11px;line-height:1.4;flex:1;text-align:center}
+    #status{min-height:16px;margin:0;color:#c5e899;font-size:11px;line-height:1.4;flex:1;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     #status:empty{display:none}
     #selectionHint{padding:10px 12px;background:#252922;border-radius:6px;color:#aeb6a6;font-size:11px;line-height:1.5;margin:10px 0}
     #selectedControls{margin-top:12px}
