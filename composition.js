@@ -140,9 +140,14 @@ function generatePetri(){
   anchors.push({x,y,w,family:(family0+j)%colors.length});
   colony(x,y,w,j%2?'halo':'mold',(family0+j)%colors.length,j%2?'smooth':'rough');
  }
+ // Algunas colonias dejan un borde concéntrico visible sobre su centro.
+ for(let j=0;j<anchors.length;j++)if(rnd(850+j)>.35){const a=anchors[j],rim=colony(a.x,a.y,a.w*(.70+rnd(860+j)*.16),'ring',a.family,'smooth');Object.assign(rim.style,{ringWidth:3+rnd(870+j)*4,blur:10,opacity:48,core:0})}
  // Formas medianas se apoyan sobre bordes existentes; algunas quedan más encima.
  const medium=12+Math.round(density*.13);
  for(let j=0;j<medium;j++){const a=anchors[j%anchors.length],angle=rotation+turn*(j*2.4+rnd(100+j)*.6),w=diameter*(.075+rnd(200+j)*.075),rad=(a.w+w)*(.25+rnd(300+j)*.12);colony(a.x+Math.cos(angle)*rad,a.y+Math.sin(angle)*rad,w,j%6===0?'ring':'halo',j%3===0?(a.family+1)%colors.length:a.family,j%5===0?'rough':'smooth')}
+ // Un recorrido de microcolonias atraviesa un punto de contacto entre dos masas.
+ const first=anchors[Math.floor(rnd(880)*anchors.length)],second=anchors[(anchors.indexOf(first)+1)%anchors.length],trail=9+Math.round(density/12);
+ for(let j=0;j<trail;j++){const t=(j+.5)/trail,dx=second.x-first.x,dy=second.y-first.y,length=Math.hypot(dx,dy)||1,offset=(rnd(900+j)-.5)*diameter*.10,w=diameter*(.014+rnd(930+j)*.028);colony(first.x+dx*t-dy/length*offset,first.y+dy*t+dx/length*offset,w,'halo',j%3===0?second.family:first.family,'fine')}
  // Pequeñas colonias se acumulan en los encuentros y se dispersan hacia fuera.
  const small=24+Math.round(density*.45);
  for(let j=0;j<small;j++){const a=anchors[Math.floor(rnd(400+j)*anchors.length)],b=anchors[(anchors.indexOf(a)+1)%anchors.length],angle=rnd(500+j)*Math.PI*2,rad=diameter*Math.sqrt(rnd(600+j))*.095,nearJoin=j%3!==0,x=nearJoin?(a.x+b.x)*.5:a.x,y=nearJoin?(a.y+b.y)*.5:a.y,w=diameter*(.012+Math.pow(rnd(700+j),2)*.028);colony(x+Math.cos(angle)*rad,y+Math.sin(angle)*rad,w,j%11===0?'pair':'halo',j%4===0?(a.family+1)%colors.length:a.family,'fine')}
