@@ -148,11 +148,13 @@ function generatePetri(){
  // Un arco de microcolonias sigue el borde hacia el encuentro entre dos masas.
  const first=anchors[Math.floor(rnd(880)*anchors.length)],second=anchors[(anchors.indexOf(first)+1)%anchors.length],trail=9+Math.round(density/12);
  const joinAngle=Math.atan2(second.y-first.y,second.x-first.x);
+ // Cada placa elige una relación: borde, superposición libre o mezcla.
+ const smallLogic=Math.min(2,Math.floor(rnd(1200)*3));
  function behind(item,anchor){const pos=items.indexOf(item),before=items.indexOf(anchor.item);if(pos>=0&&before>=0&&pos>before){items.splice(pos,1);items.splice(before,0,item)}}
- for(let j=0;j<trail;j++){const angle=joinAngle+(j/(trail-1)-.5)*1.35,rad=first.w*(.39+(rnd(900+j)-.5)*.10),w=diameter*(.014+rnd(930+j)*.024),item=colony(first.x+Math.cos(angle)*rad,first.y+Math.sin(angle)*rad,w,'halo',j%3===0?second.family:first.family,'fine');if(j%3!==0)behind(item,first)}
- // Familias de satélites siguen tramos parciales de los bordes, a distintas profundidades.
+ if(smallLogic!==1)for(let j=0;j<trail;j++){const angle=joinAngle+(j/(trail-1)-.5)*1.35,rad=first.w*(.39+(rnd(900+j)-.5)*.10),w=diameter*(.014+rnd(930+j)*.024),item=colony(first.x+Math.cos(angle)*rad,first.y+Math.sin(angle)*rad,w,'halo',j%3===0?second.family:first.family,'fine');if(j%3!==0)behind(item,first)}
+ // La mezcla asigna cada punto a un borde o a la superficie de una colonia.
  const small=18+Math.round(density*.32);
- for(let j=0;j<small;j++){const n=j%anchors.length,a=anchors[n],next=anchors[(n+1)%anchors.length],base=Math.atan2(next.y-a.y,next.x-a.x),angle=base+(rnd(500+j)-.5)*2.3,rad=a.w*(.39+(rnd(600+j)-.5)*.17),w=diameter*(.012+Math.pow(rnd(700+j),2)*.028),item=colony(a.x+Math.cos(angle)*rad,a.y+Math.sin(angle)*rad,w,j%11===0?'pair':'halo',j%4===0?(a.family+1)%colors.length:a.family,'fine');if(j%4!==0)behind(item,a)}
+ for(let j=0;j<small;j++){const n=Math.floor(rnd(1250+j)*anchors.length),a=anchors[n],next=anchors[(n+1)%anchors.length],onEdge=smallLogic===0||(smallLogic===2&&rnd(1350+j)<.5),base=Math.atan2(next.y-a.y,next.x-a.x),angle=onEdge?base+(rnd(500+j)-.5)*2.3:rnd(500+j)*Math.PI*2,rad=onEdge?a.w*(.39+(rnd(600+j)-.5)*.17):a.w*.32*Math.sqrt(rnd(600+j)),w=diameter*(.012+Math.pow(rnd(700+j),2)*.028),item=colony(a.x+Math.cos(angle)*rad,a.y+Math.sin(angle)*rad,w,j%11===0?'pair':'halo',j%4===0?(a.family+1)%colors.length:a.family,'fine');if(onEdge&&j%4!==0)behind(item,a)}
  compositionLogic='petri';structureScale=100;structureAir=100;bandAngle=0;bandPosition=0;for(const id of ['structureScale','structureAir']){$(id).value=100;$(id+'Value').value='100%'}syncBand();fitWholeScene();pieceBaseline=null;selected=null;select(null);status('Placa generada · colonias editables.');
 }
 function generate(){
