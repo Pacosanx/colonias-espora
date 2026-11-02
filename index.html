@@ -6,7 +6,6 @@
   <title>Colonias — laboratorio gráfico</title>
   <link rel="preconnect" href="https://api.fontshare.com"><link rel="preconnect" href="https://cdn.fontshare.com" crossorigin><link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=sentient@400,500,600&display=swap">
   <style>
-    @font-face{font-family:'Clamofte';src:url('./fonts/Clamofte-Regular.ttf') format('truetype');font-style:normal;font-weight:400;font-display:block}
     :root{color-scheme:dark;font-family:Arial,Helvetica,sans-serif;color:#e4e5e2;background:#151716;font-size:13px}
     *{box-sizing:border-box}
     body{margin:0}
@@ -113,6 +112,7 @@
     <div class="actions">
       <button id="save" title="Descargar una receta editable en JSON">Guardar receta</button>
       <button id="open" title="Abrir una receta JSON">Abrir receta</button>
+      <button id="exportWeb" title="Descargar código Canvas, receta y ejemplo para integrar en una web">Exportar para web</button>
       <button class="primary" id="export" title="Descargar la pieza como imagen PNG">Exportar PNG ↗</button>
     </div>
   </header>
@@ -233,6 +233,6 @@
     </aside>
   </main>
   <input type="file" id="file" accept="application/json,.json" hidden>
-  <script src="app.js?v=ux-06"></script><script src="renderer.js?v=ux-06"></script><script src="composition.js?v=ux-13"></script><script src="direct-edit.js?v=ux-06"></script><script src="numeric-edit.js"></script>
+  <script src="app.js?v=ux-06"></script><script src="renderer.js?v=ux-06"></script><script src="composition.js?v=ux-13"></script><script src="direct-edit.js?v=ux-06"></script><script src="numeric-edit.js"></script><script src="web-export.js?v=1"></script>
 </body>
 </html>
