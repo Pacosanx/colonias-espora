@@ -61,11 +61,14 @@ function arrangeComposition(logic){
  if(logic==='grid'){
   // Retícula proporcional: cruces para cuerpos principales y ejes ortogonales para secuencias.
   const cols=ratio()>1.05?4:6,rows=Math.max(4,Math.round(cols*ratio())),stepX=.72/(cols-1),stepY=.72/(rows-1),grouped=new Set();
+  const cells=[];for(let row=1;row<rows-1;row++)for(let col=1;col<cols-1;col++)cells.push({col,row});
+  cells.sort((a,b)=>hash(a.col,a.row,sceneSeed)-hash(b.col,b.row,sceneSeed));
+  const firstVertical=hash(23,79,sceneSeed)<.5;
   for(const [n,g]of groups.entries()){
-   g.type='axis';g.angle=n%2===0?0:90;g.breaks=0;g.scatter=0;
-   g.cx=.14+Math.round((cols-1)*(n%2===0?.34:.66))*stepX;
-   g.cy=.14+Math.round((rows-1)*(n<2?.34:.66))*stepY;
-   g.spacing=Math.min(stepX,stepY*ratio())*100*.22;
+   const cell=cells[n%cells.length];g.type='axis';g.angle=(n%2===0)===firstVertical?90:0;g.breaks=0;g.scatter=0;
+   g.cx=.14+cell.col*stepX;g.cy=.14+cell.row*stepY;
+   const room=g.angle===0?Math.min(g.cx,1-g.cx):Math.min(g.cy,1-g.cy)*ratio();
+   g.spacing=Math.min(Math.min(stepX,stepY*ratio())*100*(.16+hash(n,83,sceneSeed)*.16),Math.max(.25,(room-.08)*200/Math.max(1,g.count-1)));
    if(g.anchorId){const anchor=items.find(i=>i.id===g.anchorId);if(anchor){anchor.x=g.cx;anchor.y=g.cy;grouped.add(anchor.id)}}
    layoutGroup(g);for(const i of items.filter(i=>i.groupId===g.id))grouped.add(i.id);
   }
