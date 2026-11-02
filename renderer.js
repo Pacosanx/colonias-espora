@@ -51,6 +51,5 @@ function render(target,n,padding=0){
  const r=n*state.size/200;
  if(state.shape==='pair'){const sep=r*state.separation/100*1.8;element(n/2-sep/2,n/2,r*.7);element(n/2+sep/2,n/2,r*.7,1,2,[colors[2],colors[2],colors[0]])}
  else if(state.shape==='band'){for(let i=0;i<19;i++)element(n*(.04+i*.051),n*(.5+(hash(i,12,state.seed)-.5)*.10),r*(.08+hash(i,7,state.seed)*.24),i%5===0?1.7:1,i,[colors[i%3],colors[(i+1)%3],colors[(i+2)%3]])}
- else element(n/2,n/2,state.shape==='capsule'?r*.53:r,state.shape==='capsule'?1+state.elongation/50:1);
+ else {const aspect=1+state.elongation/50,fit=padding?1:Math.max(1,state.size/100*.53*aspect);element(n/2,n/2,state.shape==='capsule'?r*.53/fit:r,state.shape==='capsule'?aspect:1);}
 }
-
