@@ -121,17 +121,27 @@ function generatePetri(){
  items=[];groups=[];cache.clear();sceneSeed=Math.floor(Math.random()*1000000000);const rnd=k=>hash(k,sceneSeed,sceneSeed),r=ratio(),diameter=.76*Math.min(1,r);
  const colors=[['#ff4c52','#f58bc3','#fffbee'],['#ff9c20','#ffc21c','#fffbee'],['#27633f','#6a983a','#dce642'],['#f58bc3','#ff4c52','#ffc21c']];
  const edge=newItem('ring',.5,.5,diameter);Object.assign(edge.style,{size:85,ringWidth:2,blur:10,halo:0,grain:18,opacity:48,c1:'#27633f',c2:'#6a983a',c3:'#dce642'});items.push(edge);
- const centers=Array.from({length:4},(_,k)=>{const a=rnd(20+k)*Math.PI*2,d=Math.sqrt(rnd(30+k))*.23*diameter;return {x:Math.cos(a)*d,y:Math.sin(a)*d}});
- const count=Math.round(32+density*.9);
- for(let k=0;k<count;k++){
-  const a=rnd(100+k)*Math.PI*2,dist=Math.sqrt(rnd(400+k)),cluster=centers[Math.floor(rnd(700+k)*centers.length)];
-  let x=(rnd(1000+k)<.66?cluster.x:0)+Math.cos(a)*dist*diameter*.32,y=(rnd(1000+k)<.66?cluster.y:0)+Math.sin(a)*dist*diameter*.32;
-  const reach=Math.hypot(x,y),limit=diameter*.34;if(reach>limit){x*=limit/reach;y*=limit/reach}
-  const big=k<9,w=diameter*(big?.12+rnd(1300+k)*.12:.025+Math.pow(rnd(1300+k),2)*.12),preset=big?(rnd(1500+k)<.4?'mold':'halo'):(rnd(1600+k)<.13?'ring':'halo');
-  const item=newItem(preset,.5+x,.5+y/r,w),c=colors[Math.floor(rnd(1700+k)*colors.length)];
-  Object.assign(item.style,{c1:c[0],c2:c[1],c3:c[2],size:70+rnd(1800+k)*12,blur:10+rnd(1900+k)*(big?35:20),halo:3,core:35+rnd(2000+k)*45,grain:20+rnd(2100+k)*20,porosity:8+rnd(2200+k)*35,opacity:55+rnd(2300+k)*40,seed:Math.floor(rnd(2400+k)*100000)});items.push(item);
+ const rotation=rnd(10)*Math.PI*2,turn=rnd(11)<.5?1:-1;
+ const centers=[{angle:rotation,radius:.16},{angle:rotation+turn*2.05,radius:.20},{angle:rotation+turn*4.2,radius:.18}].map(c=>({x:Math.cos(c.angle)*c.radius*diameter,y:Math.sin(c.angle)*c.radius*diameter}));
+ let serial=0;
+ function colony(x,y,w,preset,family,kind){
+  const k=serial++,limit=Math.max(0,diameter*.38-w*.48),dist=Math.hypot(x,y);if(dist>limit){x*=limit/dist;y*=limit/dist}
+  const item=newItem(preset,.5+x,.5+y/r,w),c=colors[family%colors.length];
+  Object.assign(item.style,{c1:c[0],c2:c[1],c3:c[2],size:kind==='fine'?68:78,blur:kind==='soft'?32+rnd(k+90)*20:10+rnd(k+90)*8,halo:kind==='soft'?12:2,core:kind==='soft'?25:65+rnd(k+180)*25,grain:18+rnd(k+280)*25,porosity:kind==='rough'?35+rnd(k+380)*30:5+rnd(k+380)*18,irregularity:kind==='rough'?22:3,opacity:65+rnd(k+480)*30,seed:Math.floor(rnd(k+580)*100000)});items.push(item);return item;
  }
- const title=textItem('Colonias',.5,.5);items.push(title);compositionLogic='petri';structureScale=100;structureAir=100;bandAngle=0;bandPosition=0;for(const id of ['structureScale','structureAir']){$(id).value=100;$(id+'Value').value='100%'}syncBand();fitWholeScene();pieceBaseline=null;selected=title.id;select(selected);status('Placa generada · colonias editables.');
+ // Una colonia dominante con satélites agrupados alrededor de un arco abierto.
+ const a=centers[0],main=diameter*(.18+rnd(31)*.04),family0=Math.floor(rnd(32)*colors.length);
+ colony(a.x,a.y,main,'mold',family0,'rough');
+ const satellites=5+Math.round(density/20);for(let j=0;j<satellites;j++){const angle=rotation+j/(satellites-1)*Math.PI*1.55,rad=main*(.56+rnd(40+j)*.18),w=diameter*(.035+rnd(60+j)*.035);colony(a.x+Math.cos(angle)*rad,a.y+Math.sin(angle)*rad,w,'halo',family0,j%4===0?'soft':'smooth')}
+ // Un racimo de colonias medianas que se tocan, con acentos de otra familia.
+ const b=centers[1],family1=(family0+1+Math.floor(rnd(70)*3))%colors.length,medium=6+Math.round(density/22);
+ for(let j=0;j<medium;j++){const angle=j*2.399+rotation,rad=diameter*(.025+Math.sqrt(j/medium)*.10),w=diameter*(.075+rnd(100+j)*.055);colony(b.x+Math.cos(angle)*rad,b.y+Math.sin(angle)*rad,w,j%5===0?'ring':'halo',j%4===0?(family1+1)%colors.length:family1,j%5===0?'rough':'smooth')}
+ // Una agrupación ligera de puntos y pequeños pares deja respirar la placa.
+ const c=centers[2],family2=(family1+1)%colors.length,small=10+Math.round(density*.30);
+ for(let j=0;j<small;j++){const angle=rnd(200+j)*Math.PI*2,rad=diameter*Math.sqrt(rnd(300+j))*.13,w=diameter*(.012+rnd(400+j)*.025);colony(c.x+Math.cos(angle)*rad,c.y+Math.sin(angle)*rad,w,j%9===0?'pair':'halo',j%4===0?family0:family2,'fine')}
+ // Unos pocos acentos independientes enlazan las comunidades sin llenar todos los huecos.
+ for(let j=0;j<4+Math.round(density/25);j++){const angle=rnd(500+j)*Math.PI*2,rad=diameter*(.22+rnd(600+j)*.1);colony(Math.cos(angle)*rad,Math.sin(angle)*rad,diameter*(.018+rnd(700+j)*.025),'halo',(family0+j)%colors.length,'soft')}
+ compositionLogic='petri';structureScale=100;structureAir=100;bandAngle=0;bandPosition=0;for(const id of ['structureScale','structureAir']){$(id).value=100;$(id+'Value').value='100%'}syncBand();fitWholeScene();pieceBaseline=null;selected=null;select(null);status('Placa generada · colonias editables.');
 }
 function generate(){
  if($('compositionLogic').value==='petri'){generatePetri();return}
