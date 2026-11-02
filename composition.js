@@ -15,7 +15,7 @@ const cache=new Map(),singleRender=render,singleChoose=choose;
 const ratio=()=>format==='custom'?customRatio:({portrait:1.25,square:1,landscape:2/3})[format];
 const active=()=>items.find(i=>i.id===selected);
 const textMeasure=document.createElement('canvas').getContext('2d');
-const fontFamilies=['Clamofte','Arial','Verdana','Trebuchet MS','Georgia','Times New Roman','Courier New'];
+const fontFamilies=['Clamofte','Sentient','Arial','Verdana','Trebuchet MS','Georgia','Times New Roman','Courier New'];
 function fontStack(i){return `"${fontFamilies.includes(i.fontFamily)?i.fontFamily:'Clamofte'}", Arial, sans-serif`}
 function textWidth(i){textMeasure.font=`normal ${i.fontSize}px ${fontStack(i)}`;const metrics=textMeasure.measureText?.(i.text||'');const width=metrics?Math.max(metrics.width,(metrics.actualBoundingBoxLeft||0)+(metrics.actualBoundingBoxRight||0)):(i.text||'').length*i.fontSize*.53;return Math.max(4,width+(i.container?i.fontSize*(i.containerPadding??45)/50:4))}
 
@@ -222,7 +222,7 @@ $('itemWidth').oninput=()=>{if(active()?.type==='shape'){active().w=+$('itemWidt
 $('addText').onclick=()=>{let i=textItem('Nuevo texto',.5,.5);containItem(i);items.push(i);select(i.id)};
 $('textContent').oninput=()=>{if(active()?.type==='text'){active().text=$('textContent').value;list();schedule()}};
  for(const id of ['containerColor','textColor'])for(const [name,hex] of palette){const o=document.createElement('option');o.value=hex;o.textContent=name;$(id).append(o)}
-$('fontFamily').onchange=()=>{if(active()?.type==='text'){active().fontFamily=$('fontFamily').value;schedule()}};
+ $('fontFamily').onchange=async()=>{if(active()?.type==='text'){active().fontFamily=$('fontFamily').value;if(active().fontFamily==='Sentient'){status('Cargando Sentient…');try{await document.fonts.load(`normal ${active().fontSize}px Sentient`)}catch{status('Sentient no está disponible; se usará la fuente de respaldo.')}}schedule()}};
 for(const id of ['containerColor','textColor','containerPadding','containerRadius','containerBlur'])$(id).oninput=()=>{if(active()?.type==='text'){active()[id]=id.includes('Color')?$(id).value:+$(id).value;if($(id+'Value'))$(id+'Value').value=$(id).value+(id==='containerBlur'?' px':'%');schedule()}};
 $('textContainer').onchange=()=>{if(active()?.type==='text'){active().container=$('textContainer').checked;select(active().id)}};
  $('textOpacity').oninput=()=>{if(active()?.type==='text'){const i=active(),value=+$('textOpacity').value;if(i.container)i.containerOpacity=value;else i.opacity=value;$('textOpacityValue').value=value+'%';schedule()}};
