@@ -1,6 +1,7 @@
 'use strict';
 // Cada cifra conserva el slider y sus mismos eventos de edición.
 for(const output of document.querySelectorAll('output')){
+ if(output.closest('.color-mix'))continue;
  const slider=output.closest('label')?.querySelector('input[type=range]');if(!slider)continue;
  output.tabIndex=0;output.setAttribute('role','button');output.title='Clic para escribir un valor';
  const open=()=>{if(output.querySelector('input'))return;const original=output.value,input=document.createElement('input');input.type='number';input.className='numeric-entry';input.value=slider.value;input.min=slider.min;input.max=slider.max;input.step=slider.step||'1';input.setAttribute('aria-label',slider.closest('label').textContent.trim());output.replaceChildren(input);let done=false;
