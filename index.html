@@ -67,8 +67,8 @@
     .color-mix-fields{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
     .color-mix-fields label{margin:4px 0;font-size:11px}
     .color-mix-fields label>span{display:block;margin:0 0 5px;white-space:nowrap}
-    .color-mix-fields input{width:100%;padding:7px 5px;border:1px solid #44483f;border-radius:5px;background:#30332f;color:#e4e5e2;font-variant-numeric:tabular-nums}
-    #mixGreen{border-bottom:2px solid #6a983a}#mixYellow{border-bottom:2px solid #ffc21c}#mixRose{border-bottom:2px solid #f58bc3}
+    .color-mix-fields input{width:100%;padding:0;accent-color:#6a983a}
+    #mixYellow{accent-color:#ffc21c}#mixRose{accent-color:#f58bc3}
     details{margin:12px 0 4px;border-top:1px solid #343731;padding-top:11px}
     summary{cursor:pointer;color:#d3d8cc;font-size:12px;padding:3px 0;list-style-position:outside}
     details[open]>summary{margin-bottom:10px;color:#c5e899}
@@ -141,10 +141,10 @@
           <option value="portrait">Vertical · 4:5</option><option value="square" selected>Cuadrado · 1:1</option><option value="landscape">Horizontal · 3:2</option><option value="custom">Personalizado · arrastrá los bordes</option>
         </select></label>
         <fieldset class="color-mix"><legend>Proporción de color</legend><div class="color-mix-fields">
-          <label><span>Verdes</span><input id="mixGreen" type="number" min="0" max="100" step="1" value="33" inputmode="numeric"></label>
-          <label><span>Amarillos</span><input id="mixYellow" type="number" min="0" max="100" step="1" value="33" inputmode="numeric"></label>
-          <label><span>Rosas / rojos</span><input id="mixRose" type="number" min="0" max="100" step="1" value="34" inputmode="numeric"></label>
-        </div><p class="helper">Indicá pesos de 0 a 100. Se normalizan entre sí al generar; por ejemplo, 80 / 15 / 5.</p></fieldset>
+          <label><span>Verdes <output id="mixGreenValue">33%</output></span><input id="mixGreen" type="range" min="0" max="100" step="1" value="33"></label>
+          <label><span>Amarillos <output id="mixYellowValue">33%</output></span><input id="mixYellow" type="range" min="0" max="100" step="1" value="33"></label>
+          <label><span>Rosas / rojos <output id="mixRoseValue">34%</output></span><input id="mixRose" type="range" min="0" max="100" step="1" value="34"></label>
+        </div><p class="helper">Ajustá cada color por separado. Si los valores no suman 100, se normalizan al generar.</p></fieldset>
         <button id="newPiece" class="wide primary" title="Reemplaza la pieza actual con otra composición según la estructura y el formato elegidos">Generar composición</button>
         <p class="helper">La estructura y el formato se aplican al generar. El lienzo actual se reemplaza; guardá una receta si querés conservarlo.</p>
         <details>
@@ -245,6 +245,6 @@
     </aside>
   </main>
   <input type="file" id="file" accept="application/json,.json" hidden>
-  <script src="app.js?v=ux-06"></script><script src="renderer.js?v=ux-06"></script><script src="composition.js?v=ux-14"></script><script src="direct-edit.js?v=ux-06"></script><script src="numeric-edit.js"></script><script src="web-export.js?v=1"></script>
+  <script src="app.js?v=ux-06"></script><script src="renderer.js?v=ux-06"></script><script src="composition.js?v=ux-15"></script><script src="direct-edit.js?v=ux-06"></script><script src="numeric-edit.js"></script><script src="web-export.js?v=1"></script>
 </body>
 </html>
