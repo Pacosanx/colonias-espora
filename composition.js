@@ -10,7 +10,9 @@ let bandAngle=0,bandPosition=0;
 let structureScale=100,structureAir=100,compositionLogic='petri',pieceBaseline=null;
 let colorWeights={green:33,yellow:33,rose:34};
 const colorFamilies={green:['#27633f','#6a983a','#dce642'],yellow:['#ff9c20','#ffc21c','#dce642'],rose:['#ff4c52','#f58bc3','#ff4c52']};
-function syncColorMixInputs(){for(const [key,id]of [['green','mixGreen'],['yellow','mixYellow'],['rose','mixRose']]){$(id).value=colorWeights[key];$(id+'Value').value=colorWeights[key]+'%'}}
+function normalizeColorMix(){const keys=['green','yellow','rose'],sum=keys.reduce((n,k)=>n+Math.max(0,Number(colorWeights[k])||0),0);if(!sum){colorWeights={green:33,yellow:33,rose:34};return}const parts=keys.map(key=>{const exact=100*Math.max(0,Number(colorWeights[key])||0)/sum;return{key,value:Math.floor(exact),fraction:exact-Math.floor(exact)}});let extra=100-parts.reduce((n,p)=>n+p.value,0);for(const p of [...parts].sort((a,b)=>b.fraction-a.fraction).slice(0,extra))p.value++;colorWeights=Object.fromEntries(parts.map(p=>[p.key,p.value]))}
+function syncColorMixInputs(){normalizeColorMix();for(const [key,id]of [['green','mixGreen'],['yellow','mixYellow'],['rose','mixRose']]){$(id).value=colorWeights[key];$(id+'Value').value=colorWeights[key]+'%'}}
+function setColorMix(key,value){const remainder=100-value,keepKey=key==='green'?'yellow':'green',adjustKey=['green','yellow','rose'].find(k=>k!==key&&k!==keepKey),keep=Math.min(colorWeights[keepKey],remainder);colorWeights={...colorWeights,[key]:value,[keepKey]:keep,[adjustKey]:remainder-keep}}
 function applyColorMix(){
  const targets=items.filter(i=>i.type==='shape'&&i.role!=='petri-rim');if(!targets.length)return;
  const keys=['green','yellow','rose'],sum=keys.reduce((n,k)=>n+Math.max(0,Number(colorWeights[k])||0),0);if(!sum)return;
@@ -230,7 +232,7 @@ function paintScene(target,width,guide=false,progress=1){const h=Math.round(widt
 schedule=function(){if(pending)return;pending=true;requestAnimationFrame(()=>{pending=false;if(mode==='piece'){paper.background=state.background;paper.transparent=state.transparent;paintScene(canvas,640,true,timelineProgress);$('name').textContent=`Pieza / ${items.length} elementos`;$('timeline').hidden=false}else{singleRender(canvas,760);$('timeline').hidden=true} $('art').classList.toggle('checker',state.transparent);$('art').style.backgroundColor=state.background;if(typeof updateDirectUI==='function')updateDirectUI();})};
 choose=function(name){if(mode==='single'){singleChoose(name);return}current=name;const item=newItem(name);containItem(item);items.push(item);select(item.id)};
 $('singleMode').onclick=()=>setMode('single');$('pieceMode').onclick=()=>setMode('piece');$('format').onchange=()=>{format=$('format').value;manualViewWidth=null;if(format==='custom')customRatio=Math.max(customRatio,minimumContentRatio());fit();schedule()};$('density').oninput=()=>{density=+$('density').value;$('densityValue').value=density};$('newPiece').onclick=generate;
-for(const [key,id]of [['green','mixGreen'],['yellow','mixYellow'],['rose','mixRose']])$(id).oninput=()=>{colorWeights[key]=clamp(Math.round(Number($(id).value)||0),0,100);syncColorMixInputs()};
+for(const [key,id]of [['green','mixGreen'],['yellow','mixYellow'],['rose','mixRose']])$(id).oninput=()=>{setColorMix(key,clamp(Math.round(Number($(id).value)||0),0,100));syncColorMixInputs()};
 $('layers').onchange=()=>select(+$('layers').value);
 $('itemWidth').oninput=()=>{if(active()?.type==='shape'){active().w=+$('itemWidth').value/100;containItem(active());$('itemWidth').value=active().w*100}$('widthValue').value=Math.round(+$('itemWidth').value)+'%';schedule()};
 $('addText').onclick=()=>{let i=textItem('Nuevo texto',.5,.5);containItem(i);items.push(i);select(i.id)};
