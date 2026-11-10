@@ -74,6 +74,7 @@
     details{margin:12px 0 4px;border-top:1px solid #343731;padding-top:11px}
     summary{cursor:pointer;color:#d3d8cc;font-size:12px;padding:3px 0;list-style-position:outside}
     details[open]>summary{margin-bottom:10px;color:#c5e899}
+    #selectionMarquee{position:absolute;z-index:4;border:1px solid #9fd879;background:#9fd87933;pointer-events:none;display:none}
     .resize-handle{position:absolute;z-index:5;background:#c5e899;border:0;padding:0;border-radius:3px;touch-action:none;min-width:12px;min-height:12px}
     .resize-handle:hover{background:#efffd9}
     .resize-handle[data-edge=n],.resize-handle[data-edge=s]{width:42px;height:8px;left:calc(50% - 21px);cursor:ns-resize}
@@ -200,7 +201,7 @@
     </aside>
     <div class="stage">
       <div class="stagebar"><span id="name">Pieza</span><span id="status" role="status" aria-live="polite"></span><span class="tag" id="modeTag">Composición</span></div>
-      <div class="workspace"><div class="art" id="art"><canvas id="canvas" width="760" height="760" tabindex="0" aria-label="Lienzo editable. Seleccioná y arrastrá un elemento; doble clic sobre un texto para editarlo."></canvas><input id="inlineText" class="inline-text" type="text" maxlength="100" aria-label="Editar texto en la pieza" hidden><div id="resizeHandles" hidden></div></div></div>
+      <div class="workspace"><div class="art" id="art"><canvas id="canvas" width="760" height="760" tabindex="0" aria-label="Lienzo editable. Seleccioná y arrastrá un elemento; doble clic sobre un texto para editarlo."></canvas><input id="inlineText" class="inline-text" type="text" maxlength="100" aria-label="Editar texto en la pieza" hidden><div id="resizeHandles" hidden></div><div id="selectionMarquee" aria-hidden="true"></div></div></div>
       <div id="timeline" class="timeline" hidden><button id="playTimeline" aria-label="Reproducir animación">▶</button><label for="timelinePosition">Crecimiento</label><input id="timelinePosition" type="range" min="0" max="1000" value="1000"><output id="timelineValue">100%</output><button id="exportMp4" class="primary">Exportar MP4</button><small>Recorrido gráfico de crecimiento · el final corresponde a la composición generada</small></div>
       <div class="foot" id="canvasHelp">Seleccioná y arrastrá elementos para moverlos · Doble clic sobre un texto para editarlo · Arrastrá los bordes para cambiar el formato</div>
     </div>
@@ -258,7 +259,7 @@
     </aside>
   </main>
   <input type="file" id="file" accept="application/json,.json" hidden>
-  <script src="app.js?v=texto-colonias-01"></script><script src="renderer.js?v=texto-colonias-01"></script><script src="composition.js?v=alfabeto-rp-02"></script><script src="direct-edit.js?v=ux-06"></script><script src="numeric-edit.js?v=color-slider-01"></script><script src="web-export.js?v=1"></script>
+  <script src="app.js?v=texto-colonias-01"></script><script src="renderer.js?v=texto-colonias-01"></script><script src="composition.js?v=marquee-01"></script><script src="direct-edit.js?v=ux-06"></script><script src="numeric-edit.js?v=color-slider-01"></script><script src="web-export.js?v=1"></script>
 </body>
 </html>
 
