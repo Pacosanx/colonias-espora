@@ -6,6 +6,7 @@
   <title>Colonias — laboratorio gráfico</title>
   <link rel="preconnect" href="https://api.fontshare.com"><link rel="preconnect" href="https://cdn.fontshare.com" crossorigin><link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=sentient@400,500,600&display=swap">
   <style>
+    @font-face{font-family:'Clamofte';src:url('./fonts/Clamofte-Regular.ttf') format('truetype');font-style:normal;font-weight:400;font-display:block}
     :root{color-scheme:dark;font-family:Arial,Helvetica,sans-serif;color:#e4e5e2;background:#151716;font-size:13px}
     *{box-sizing:border-box}
     body{margin:0}
@@ -33,7 +34,7 @@
     .colors{display:grid;grid-template-columns:1fr;gap:8px}
     .colors label{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:10px 0}
     .colors select{width:145px;padding:7px}
-    .swatches{display:flex;gap:6px;margin:10px 0 14px}
+    .swatches{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 14px}
     .swatches i{width:18px;height:18px;border-radius:50%;display:block}
     .swatch-note,.note{font-size:11px;color:#9aa391;line-height:1.55;margin:8px 0}
     select{width:100%}
@@ -47,7 +48,7 @@
     .stagebar #name{font-variant-numeric:tabular-nums}
     .tag{border-radius:30px;background:#2b3424;padding:6px 10px;color:#c5dfab;max-width:45%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
     .workspace{flex:1;min-height:0;padding:12px 26px 18px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:radial-gradient(ellipse at center,#252922,#151716)}
-    .art{position:relative;max-width:100%;max-height:100%;aspect-ratio:1;width:min(100%,75vh);background:#e8e9e3;box-shadow:0 14px 60px #0005;flex-shrink:0}
+    .art{position:relative;max-width:100%;aspect-ratio:1;width:min(100%,75vh);background:#e8e9e3;box-shadow:0 14px 60px #0005;flex-shrink:0}
     .art.checker{background-color:#e9e9e9;background-image:conic-gradient(#d3d3d3 25%,transparent 0 50%,#d3d3d3 0 75%,transparent 0);background-size:24px 24px}
     canvas{width:100%;height:100%;display:block;touch-action:none;cursor:crosshair}
     .foot{min-height:34px;padding:0 20px 12px;color:#9aa391;font-size:11px;line-height:1.45}
@@ -147,6 +148,7 @@
           <label><span>Rosas / rojos <output id="mixRoseValue">34%</output></span><input id="mixRose" type="range" min="0" max="100" step="1" value="34"></label>
         </div><p class="helper">Las proporciones siempre suman 100%. Al mover una barra, se ajusta la restante.</p></fieldset>
         <button id="newPiece" class="wide primary" title="Reemplaza la pieza actual con otra composición según la estructura y el formato elegidos">Generar composición</button>
+        <button id="referencePlate" class="wide">Recrear placa de referencia</button>
         <p class="helper">La estructura y el formato se aplican al generar. El lienzo actual se reemplaza; guardá una receta si querés conservarlo.</p>
         <details>
           <summary>Ajustes de composición</summary>
@@ -163,6 +165,12 @@
         <div class="presets">
           <button data-preset="halo">◉ Halo</button><button data-preset="capsule">▬ Cápsula</button><button data-preset="pair">●● Superposición</button><button data-preset="ring">◯ Anillo</button><button data-preset="arc">◔ Arco</button><button data-preset="fragment">◕ Fragmento</button><button data-preset="mold">✳ Filamentos</button><button data-preset="band">··· Banda</button>
         </div>
+        <details open><summary>Colonias figurativas</summary>
+          <p class="helper">Rasgos observables para combinar y superponer en la placa. Sus formas no identifican especies.</p>
+          <div class="presets"><button data-preset="smoothcol">Colonia lisa</button><button data-preset="wrinkled">Colonia plegada</button><button data-preset="zoned">Colonia zonada</button><button data-preset="rimmed">Colonia aureolada</button><button data-preset="spotted">Colonia con manchas</button><button data-preset="cotton">Micelio algodonado</button><button data-preset="hairy">Colonia peluda</button><button data-preset="branching">Expansión ramificada</button><button data-preset="granular">Colonia granular</button><button data-preset="fan">Crecimiento unilateral</button><button data-preset="patchy">Pigmentos irregulares</button></div>
+          <button id="figureExample" class="wide" title="Reemplaza la composición actual por un ejemplo editable">Nueva placa figurativa</button>
+          <p class="helper">El ejemplo reemplaza la composición actual. Guardá la receta antes si querés conservarla.</p>
+        </details>
         <div id="groupAddTools" class="presets" style="margin-top:8px">
           <button id="addAxis">+ Secuencia axial</button><button id="addRadial">+ Grupo radial</button>
         </div>
@@ -171,7 +179,7 @@
       <div id="elementToolsAnchor">
         <section id="constructionSection">
           <h2>Construcción</h2>
-          <label>Forma<select id="shape"><option value="disk">Disco</option><option value="capsule">Cápsula</option><option value="pair">Dos colonias</option><option value="ring">Anillo</option><option value="arc">Arco</option><option value="fragment">Fragmento</option><option value="band">Banda de elementos</option></select></label>
+          <label>Forma<select id="shape"><option value="disk">Disco</option><option value="capsule">Cápsula</option><option value="pair">Dos colonias</option><option value="ring">Anillo</option><option value="arc">Arco</option><option value="fragment">Fragmento</option><option value="band">Banda de elementos</option><option value="smoothcol">Colonia lisa</option><option value="wrinkled">Colonia plegada</option><option value="zoned">Colonia zonada</option><option value="rimmed">Colonia aureolada</option><option value="spotted">Colonia con manchas</option><option value="cotton">Micelio algodonado</option><option value="hairy">Colonia peluda</option><option value="branching">Expansión ramificada</option><option value="granular">Colonia granular</option><option value="fan">Crecimiento unilateral</option><option value="patchy">Pigmentos irregulares</option></select></label>
           <div id="geometry"></div>
         </section>
         <section id="colorSection">
@@ -199,11 +207,14 @@
       <section id="layerTools" hidden>
         <h2>Capas y selección</h2>
         <label for="layers">Capas · la primera está al frente</label>
-        <select id="layers" size="5" aria-label="Capas de la pieza"></select>
+        <select id="layers" size="5" multiple aria-label="Capas de la pieza"></select>
+        <p class="helper">Mantené Ctrl o Mayús para seleccionar varias capas.</p>
+        <button id="makeGroup" class="wide">Agrupar capas seleccionadas</button>
         <p id="selectionHint" hidden>Elegí una capa o seleccioná un elemento en el lienzo para editarlo.</p>
         <div id="selectedControls" hidden>
           <div id="groupTools" hidden>
             <p id="groupName" class="helper"></p>
+            <p class="helper">Elegí una capa en la lista para editarla. Arrastrá cualquier integrante para mover el conjunto.</p>
             <label><span>Cantidad <output id="groupCountValue"></output></span><input id="groupCount" type="range" min="3" max="24"></label>
             <label><span>Separación / radio <output id="groupSpacingValue"></output></span><input id="groupSpacing" type="range" min="1" max="18" step=".5"></label>
             <label><span>Dispersión <output id="groupScatterValue"></output></span><input id="groupScatter" type="range" min="0" max="100"></label>
@@ -246,6 +257,8 @@
     </aside>
   </main>
   <input type="file" id="file" accept="application/json,.json" hidden>
-  <script src="app.js?v=ux-06"></script><script src="renderer.js?v=ux-06"></script><script src="composition.js?v=ux-16"></script><script src="direct-edit.js?v=ux-06"></script><script src="numeric-edit.js?v=color-slider-01"></script><script src="web-export.js?v=1"></script>
+  <script src="app.js?v=figuras-04"></script><script src="renderer.js?v=figuras-04"></script><script src="composition.js?v=figuras-12"></script><script src="direct-edit.js?v=ux-06"></script><script src="numeric-edit.js?v=color-slider-01"></script><script src="web-export.js?v=1"></script>
 </body>
 </html>
+
+
