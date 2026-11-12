@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Colonias — laboratorio gráfico</title>
+  <link rel="preconnect" href="https://api.fontshare.com"><link rel="preconnect" href="https://cdn.fontshare.com" crossorigin><link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=sentient@400,500,600&display=swap">
+  <style>
+    @font-face{font-family:'Clamofte';src:url('./fonts/Clamofte-Regular.ttf') format('truetype');font-style:normal;font-weight:400;font-display:block}
+    :root{color-scheme:dark;font-family:Arial,Helvetica,sans-serif;color:#e4e5e2;background:#151716;font-size:13px}
+    *{box-sizing:border-box}
+    body{margin:0}
+    button,input,select{font:inherit}
+    button,select{color:inherit;background:#30332f;border:0;border-radius:6px;padding:10px 12px;cursor:pointer}
+    button:hover,select:hover{background:#42483b}
+    button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:2px solid #b8de80;outline-offset:3px}
+    header{min-height:76px;display:flex;align-items:center;justify-content:space-between;gap:20px;padding:12px 26px;border-bottom:1px solid #343731}
+    h1{font-size:21px;letter-spacing:-.6px;margin:0}
+    header small{display:block;color:#939b90;font-size:11px;margin-top:6px}
+    .actions{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap}
+    .primary{background:#c5e899;color:#182218;font-weight:600}
+    .primary:hover{background:#d6f7ad}
+    main{display:grid;grid-template-columns:270px minmax(320px,1fr) 290px;height:calc(100vh - 76px);min-height:600px}
+    aside{padding:20px;overflow:auto;background:#1b1e1a;overscroll-behavior:contain;scrollbar-color:#4a5046 #1b1e1a;scrollbar-width:thin}
+    #creationPanel{border-right:1px solid #343731}
+    #editPanel{border-left:1px solid #343731}
+    h2{font-size:11px;letter-spacing:1.4px;text-transform:uppercase;color:#a6ad9f;margin:0 0 14px}
+    section{padding:0 0 20px;margin-bottom:20px;border-bottom:1px solid #343731}
+    label{display:block;margin:14px 0;color:#c2c8bb}
+    label>span{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:8px}
+    output{font-variant-numeric:tabular-nums;color:#b6d88c;white-space:nowrap}
+    input[type=range]{width:100%;accent-color:#bcdf91;cursor:pointer}
+    input[type=color]{width:100%;height:35px;border:0;padding:0;background:none;cursor:pointer}
+    .colors{display:grid;grid-template-columns:1fr;gap:8px}
+    .colors label{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:10px 0}
+    .colors select{width:145px;padding:7px}
+    .swatches{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 14px}
+    .swatches i{width:18px;height:18px;border-radius:50%;display:block}
+    .swatch-note,.note{font-size:11px;color:#9aa391;line-height:1.55;margin:8px 0}
+    select{width:100%}
+    .presets{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+    .presets button{text-align:left;font-size:12px;min-height:38px}
+    .mode-switch button[aria-pressed=true]{background:#c5e899;color:#182218}
+    .wide{width:100%;margin:5px 0}
+    .mode-switch{grid-template-columns:1fr 1fr}
+    .stage{display:flex;flex-direction:column;min-width:0;overflow:hidden}
+    .stagebar{min-height:48px;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;color:#a5ab9f;font-size:11px}
+    .stagebar #name{font-variant-numeric:tabular-nums}
+    .tag{border-radius:30px;background:#2b3424;padding:6px 10px;color:#c5dfab;max-width:45%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .workspace{flex:1;min-height:0;padding:12px 26px 18px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:radial-gradient(ellipse at center,#252922,#151716)}
+    .art{position:relative;max-width:100%;aspect-ratio:1;width:min(100%,75vh);background:#e8e9e3;box-shadow:0 14px 60px #0005;flex-shrink:0}
+    .art.checker{background-color:#e9e9e9;background-image:conic-gradient(#d3d3d3 25%,transparent 0 50%,#d3d3d3 0 75%,transparent 0);background-size:24px 24px}
+    canvas{width:100%;height:100%;display:block;touch-action:none;cursor:crosshair}
+    .foot{min-height:34px;padding:0 20px 12px;color:#9aa391;font-size:11px;line-height:1.45}
+    .timeline{display:grid;grid-template-columns:auto minmax(100px,1fr) auto auto;align-items:center;gap:9px;padding:8px 20px 12px;border-top:1px solid #343731;background:#1b1e1a}
+    .timeline[hidden]{display:none}.timeline input{width:100%;accent-color:#bcdf91}.timeline label{margin:0;font-size:11px;color:#c2c8bb}.timeline button{padding:7px 10px;font-size:11px}.timeline output{font-size:11px;min-width:36px;text-align:right}.timeline small{grid-column:1/-1;color:#9aa391;font-size:10px}
+    .check{display:flex;align-items:center;gap:8px}
+    input[type=checkbox]{accent-color:#bcdf91}
+    #layers{height:150px;padding:4px}
+    #layers option{padding:7px}
+    input[type=text]{width:100%;padding:10px;background:#30332f;border:0;border-radius:5px;color:inherit}
+    [hidden]{display:none!important}
+    #elementToolsAnchor,#elementInspectorAnchor{display:contents}
+    .note{font-size:11px;color:#9aa391;line-height:1.6}
+    .helper{margin:8px 0 12px;color:#aeb6a6;font-size:11px;line-height:1.5}
+    .color-mix{border:1px solid #343731;border-radius:7px;padding:8px 10px;margin:14px 0;background:#20231f}
+    .color-mix legend{padding:0 5px;color:#d3d8cc;font-size:12px}
+    .color-mix-fields{display:grid;grid-template-columns:1fr;gap:4px}
+    .color-mix-fields label{min-width:0;margin:5px 0;font-size:11px}
+    .color-mix-fields label>span{display:flex;justify-content:space-between;margin:0 0 3px;white-space:normal}
+    .color-mix-fields input{width:100%;padding:0;accent-color:#6a983a}
+    .color-mix output{cursor:default;border:0}
+    #mixYellow{accent-color:#ffc21c}#mixRose{accent-color:#f58bc3}
+    details{margin:12px 0 4px;border-top:1px solid #343731;padding-top:11px}
+    summary{cursor:pointer;color:#d3d8cc;font-size:12px;padding:3px 0;list-style-position:outside}
+    details[open]>summary{margin-bottom:10px;color:#c5e899}
+    #selectionMarquee{position:absolute;z-index:4;border:1px solid #9fd879;background:#9fd87933;pointer-events:none;display:none}
+    .resize-handle{position:absolute;z-index:5;background:#c5e899;border:0;padding:0;border-radius:3px;touch-action:none;min-width:12px;min-height:12px}
+    .resize-handle:hover{background:#efffd9}
+    .resize-handle[data-edge=n],.resize-handle[data-edge=s]{width:42px;height:8px;left:calc(50% - 21px);cursor:ns-resize}
+    .resize-handle[data-edge=e],.resize-handle[data-edge=w]{height:42px;width:8px;top:calc(50% - 21px);cursor:ew-resize}
+    .resize-handle[data-edge=n]{top:-6px}.resize-handle[data-edge=s]{bottom:-6px}.resize-handle[data-edge=w]{left:-6px}.resize-handle[data-edge=e]{right:-6px}
+    .resize-handle[data-edge=nw]{left:-6px;top:-6px;cursor:nwse-resize}.resize-handle[data-edge=ne]{right:-6px;top:-6px;cursor:nesw-resize}.resize-handle[data-edge=sw]{left:-6px;bottom:-6px;cursor:nesw-resize}.resize-handle[data-edge=se]{right:-6px;bottom:-6px;cursor:nwse-resize}
+    input.inline-text{position:absolute;z-index:6;margin:0;padding:0 8px;border:0;background:transparent;border-radius:30px;text-align:center;color:#fffbee;line-height:normal;box-shadow:0 0 0 2px #b8de80;outline:none}
+    output{cursor:text;border-bottom:1px dotted #9aab8a}
+    output:focus-visible{outline:2px solid #b8de80}
+    output input.numeric-entry{width:78px;padding:2px 4px;background:#30332f;color:#e4e5e2;border:0;border-radius:3px;text-align:right}
+    #status{min-height:16px;margin:0;color:#c5e899;font-size:11px;line-height:1.4;flex:1;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    #status:empty{display:none}
+    #selectionHint{padding:10px 12px;background:#252922;border-radius:6px;color:#aeb6a6;font-size:11px;line-height:1.5;margin:10px 0}
+    #selectedControls{margin-top:12px}
+    #itemActions{margin-top:14px}
+    #itemActions button{min-height:36px}
+    #outputTools{border-bottom:0;margin-bottom:0}
+    @media(max-width:1050px){
+      main{grid-template-columns:240px minmax(320px,1fr);height:auto;min-height:calc(100vh - 76px)}
+      #creationPanel{grid-column:1;grid-row:1 / span 2}
+      .stage{grid-column:2;grid-row:1;min-height:600px}
+      #editPanel{grid-column:2;grid-row:2;border-left:0;border-top:1px solid #343731;display:grid;grid-template-columns:repeat(2,minmax(220px,1fr));align-items:start;gap:0 28px}
+      #layerTools,#elementInspectorAnchor,#outputTools{min-width:0}
+      #outputTools{grid-column:1/-1}
+    }
+    @media(max-width:700px){
+      header{align-items:flex-start;padding:14px 16px;gap:12px;flex-direction:column}
+      .actions{justify-content:flex-start;width:100%}
+      main{display:flex;flex-direction:column;min-height:0;height:auto}
+      .stage{order:-1;min-height:0;overflow:visible}
+      .stagebar{padding:10px 14px}
+      .workspace{min-height:340px;height:54vh;max-height:560px;padding:12px 20px}
+      .art{width:min(100%,350px)}
+      .foot{padding:0 14px 12px}
+      .timeline{padding:8px 14px 12px;grid-template-columns:auto minmax(90px,1fr) auto}.timeline #exportMp4{grid-column:1/-1}
+      #creationPanel,#editPanel{border:0;border-top:1px solid #343731;overflow:visible;padding:18px 16px}
+      #editPanel{display:block}
+      .tag{max-width:55%}
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div><h1>Colonias <span style="color:#8e9b82">/ laboratorio gráfico</span></h1><small>Formas, materia y superposición · estudio 02</small></div>
+    <div class="actions">
+      <button id="save" title="Descargar una receta editable en JSON">Guardar receta</button>
+      <button id="open" title="Abrir una receta JSON">Abrir receta</button>
+      <button id="exportWeb" title="Descargar código Canvas, receta y ejemplo para integrar en una web">Exportar para web</button>
+      <button class="primary" id="export" title="Descargar la pieza como imagen PNG">Exportar PNG ↗</button>
+    </div>
+  </header>
+  <main>
+    <aside id="creationPanel" aria-label="Preparar la pieza">
+      <section>
+        <h2>Modo de trabajo</h2>
+        <div class="presets mode-switch">
+          <button id="singleMode" aria-pressed="false">Elemento</button>
+          <button id="pieceMode" aria-pressed="true">Composición</button>
+        </div>
+      </section>
+      <section id="compositionTools" hidden>
+        <h2>Composición</h2>
+        <label>Estructura<select id="compositionLogic">
+          <option value="nuclei">Núcleos orgánicos</option><option value="constellation">Constelación</option><option value="radial">Distribución radial</option><option value="field">Campo disperso</option><option value="grid">Retícula · ejes ortogonales</option><option value="band">Banda</option><option value="petri" selected>Placa · colonias</option>
+        </select></label>
+        <label>Formato<select id="format">
+          <option value="portrait">Vertical · 4:5</option><option value="square" selected>Cuadrado · 1:1</option><option value="landscape">Horizontal · 3:2</option><option value="custom">Personalizado · arrastrá los bordes</option>
+        </select></label>
+        <fieldset class="color-mix"><legend>Proporción de color</legend><div class="color-mix-fields">
+          <label><span>Verdes <output id="mixGreenValue">33%</output></span><input id="mixGreen" type="range" min="0" max="100" step="1" value="33"></label>
+          <label><span>Amarillos <output id="mixYellowValue">33%</output></span><input id="mixYellow" type="range" min="0" max="100" step="1" value="33"></label>
+          <label><span>Rosas / rojos <output id="mixRoseValue">34%</output></span><input id="mixRose" type="range" min="0" max="100" step="1" value="34"></label>
+        </div><p class="helper">Las proporciones siempre suman 100%. Al mover una barra, se ajusta la restante.</p></fieldset>
+        <button id="clearCanvas" class="wide" title="Quitar todos los elementos del lienzo">Vaciar lienzo</button>
+        <button id="newPiece" class="wide primary" title="Reemplaza la pieza actual con otra composición según la estructura y el formato elegidos">Generar composición</button>
+        <button id="referencePlate" class="wide">Recrear placa de referencia</button>
+        <p class="helper">La estructura y el formato se aplican al generar. El lienzo actual se reemplaza; guardá una receta si querés conservarlo.</p>
+        <details>
+          <summary>Ajustes de composición</summary>
+          <label><span>Compresión ↔ expansión <output id="structureScaleValue">100%</output></span><input id="structureScale" type="range" min="50" max="150" value="100"></label>
+          <label><span>Aire entre elementos <output id="structureAirValue">100%</output></span><input id="structureAir" type="range" min="40" max="180" value="100"></label>
+          <label><span>Densidad al generar <output id="densityValue">55</output></span><input type="range" id="density" min="15" max="100" value="55"></label>
+          <label><span>Rotación general <output id="bandAngleValue">0°</output></span><input id="bandAngle" type="range" min="-90" max="90" value="0"></label>
+          <label><span>Desplazamiento general <output id="bandPositionValue">0%</output></span><input id="bandPosition" type="range" min="-40" max="40" value="0"></label>
+        </details>
+      </section>
+      <section id="addTools">
+        <h2 id="addHeading">Añadir elementos</h2>
+        <p class="helper" id="addHelp">Elegí una forma para sumar a la composición. Después podés moverla y editarla.</p>
+        <div class="presets">
+          <button data-preset="halo">◉ Halo</button><button data-preset="capsule">▬ Cápsula</button><button data-preset="pair">●● Superposición</button><button data-preset="ring">◯ Anillo</button><button data-preset="arc">◔ Arco</button><button data-preset="fragment">◕ Fragmento</button><button data-preset="mold">✳ Filamentos</button><button data-preset="band">··· Banda</button>
+        </div>
+        <details open><summary>Colonias figurativas</summary>
+          <p class="helper">Rasgos observables para combinar y superponer en la placa. Sus formas no identifican especies.</p>
+          <div class="presets"><button data-preset="smoothcol">Colonia lisa</button><button data-preset="wrinkled">Colonia plegada</button><button data-preset="zoned">Colonia zonada</button><button data-preset="rimmed">Colonia aureolada</button><button data-preset="spotted">Colonia con manchas</button><button data-preset="cotton">Micelio algodonado</button><button data-preset="hairy">Colonia peluda</button><button data-preset="branching">Expansión ramificada</button><button data-preset="granular">Colonia granular</button><button data-preset="fan">Crecimiento unilateral</button><button data-preset="patchy">Pigmentos irregulares</button></div>
+          <button id="figureExample" class="wide" title="Reemplaza la composición actual por un ejemplo editable">Nueva placa figurativa</button>
+          <p class="helper">El ejemplo reemplaza la composición actual. Guardá la receta antes si querés conservarla.</p>
+        </details>
+        <div id="groupAddTools" class="presets" style="margin-top:8px">
+          <button id="addAxis">+ Secuencia axial</button><button id="addRadial">+ Grupo radial</button>
+        </div>
+        <button id="addText" class="wide">+ Texto</button><details id="colonyTextPanel"><summary>Texto con colonias</summary><label>Palabra <input id="colonyWord" type="text" maxlength="24" value="ESPORA" style="text-transform:uppercase"></label><label><span>Tamaño del conjunto <output id="ctScaleValue">70%</output></span><input id="ctScale" type="range" min="20" max="120" value="70"></label><label><span>Tamaño de círculos <output id="ctDotValue">150%</output></span><input id="ctDot" type="range" min="50" max="200" value="150"></label><label><span>Separación <output id="ctSpacingValue">100%</output></span><input id="ctSpacing" type="range" min="70" max="150" value="100"></label><label>Tipo de módulo <select id="ctModule"><option value="halo">Halo</option><option value="smoothcol">Colonia lisa</option><option value="zoned">Colonia zonada</option><option value="granular">Colonia granular</option><option value="ring">Anillo</option><option value="mixed">Mezcla de módulos</option></select></label><label>Tratamiento del color <select id="ctColorMode"><option value="gradient">Gradiente</option><option value="solid">Tonos plenos variados</option><option value="varied">Gradientes variados</option></select></label><label>Color <select id="ctColor"><option value="mix">Proporción de color</option><option value="green">Verdes</option><option value="yellow">Amarillos</option><option value="rose">Rosas / rojos</option></select></label><label><span>Variación <output id="ctVariationValue">0%</output></span><input id="ctVariation" type="range" min="0" max="60" value="0"></label><label><span>Blur <output id="ctBlurValue">10 px</output></span><input id="ctBlur" type="range" min="0" max="100" value="10"></label><label><span>Grano <output id="ctGrainValue">20%</output></span><input id="ctGrain" type="range" min="0" max="100" value="20"></label><label><span>Opacidad <output id="ctOpacityValue">90%</output></span><input id="ctOpacity" type="range" min="0" max="100" value="90"></label><button id="createColonyText" class="wide">Añadir palabra</button><p class="helper">Seleccioná una colonia de la palabra para editar el conjunto. Desagrupá para modificar cada colonia.</p></details>
+      </section>
+      <div id="elementToolsAnchor">
+        <section id="constructionSection">
+          <h2>Construcción</h2>
+          <label>Forma<select id="shape"><option value="disk">Disco</option><option value="capsule">Cápsula</option><option value="pair">Dos colonias</option><option value="ring">Anillo</option><option value="arc">Arco</option><option value="fragment">Fragmento</option><option value="band">Banda de elementos</option><option value="smoothcol">Colonia lisa</option><option value="wrinkled">Colonia plegada</option><option value="zoned">Colonia zonada</option><option value="rimmed">Colonia aureolada</option><option value="spotted">Colonia con manchas</option><option value="cotton">Micelio algodonado</option><option value="hairy">Colonia peluda</option><option value="branching">Expansión ramificada</option><option value="granular">Colonia granular</option><option value="fan">Crecimiento unilateral</option><option value="patchy">Pigmentos irregulares</option></select></label>
+          <div id="geometry"></div>
+        </section>
+        <section id="colorSection">
+          <h2>Color</h2>
+          <label>Gradiente<select id="gradient"><option value="radial">Radial</option><option value="linear">Lineal</option><option value="rings">Anillos cromáticos</option></select></label>
+          <div id="paletteSwatches" class="swatches" aria-label="Colores disponibles"></div>
+          <p class="swatch-note">Paleta disponible</p>
+          <div class="colors"><label>Centro<select id="c1"></select></label><label>Medio<select id="c2"></select></label><label>Borde<select id="c3"></select></label></div>
+          <div id="colorControls"></div>
+        </section>
+        <section id="materialSection">
+          <h2>Materia</h2>
+          <div id="material"></div>
+          <label>Superposición<select id="blend"><option value="source-over">Normal</option><option value="multiply">Multiplicar</option><option value="screen">Trama</option></select></label>
+        </section>
+      </div>
+    </aside>
+    <div class="stage">
+      <div class="stagebar"><span id="name">Pieza</span><span id="status" role="status" aria-live="polite"></span><span class="tag" id="modeTag">Composición</span></div>
+      <div class="workspace"><div class="art" id="art"><canvas id="canvas" width="760" height="760" tabindex="0" aria-label="Lienzo editable. Seleccioná y arrastrá un elemento; doble clic sobre un texto para editarlo."></canvas><input id="inlineText" class="inline-text" type="text" maxlength="100" aria-label="Editar texto en la pieza" hidden><div id="resizeHandles" hidden></div><div id="selectionMarquee" aria-hidden="true"></div></div></div>
+      <div id="timeline" class="timeline" hidden><button id="playTimeline" aria-label="Reproducir animación">▶</button><label for="timelinePosition">Crecimiento</label><input id="timelinePosition" type="range" min="0" max="1000" value="1000"><output id="timelineValue">100%</output><button id="exportMp4" class="primary">Exportar MP4</button><small>Recorrido gráfico de crecimiento · el final corresponde a la composición generada</small></div>
+      <div class="foot" id="canvasHelp">Seleccioná y arrastrá elementos para moverlos · Doble clic sobre un texto para editarlo · Arrastrá los bordes para cambiar el formato</div>
+    </div>
+    <aside id="editPanel" aria-label="Editar y exportar">
+      <section id="layerTools" hidden>
+        <h2>Capas y selección</h2>
+        <label for="layers">Capas · la primera está al frente</label>
+        <select id="layers" size="5" multiple aria-label="Capas de la pieza"></select>
+        <p class="helper">Mantené Ctrl o Mayús para seleccionar varias capas.</p>
+        <button id="makeGroup" class="wide">Agrupar capas seleccionadas</button>
+        <p id="selectionHint" hidden>Elegí una capa o seleccioná un elemento en el lienzo para editarlo.</p>
+        <div id="selectedControls" hidden>
+          <div id="groupTools" hidden>
+            <p id="groupName" class="helper"></p>
+            <p class="helper">Elegí una capa en la lista para editarla. Arrastrá cualquier integrante para mover el conjunto.</p>
+            <label><span>Cantidad <output id="groupCountValue"></output></span><input id="groupCount" type="range" min="3" max="24"></label>
+            <label><span>Separación / radio <output id="groupSpacingValue"></output></span><input id="groupSpacing" type="range" min="1" max="18" step=".5"></label>
+            <label><span>Dispersión <output id="groupScatterValue"></output></span><input id="groupScatter" type="range" min="0" max="100"></label>
+            <label><span>Ángulo <output id="groupAngleValue"></output></span><input id="groupAngle" type="range" min="-180" max="180"></label>
+            <label><span>Interrupciones <output id="groupBreaksValue"></output></span><input id="groupBreaks" type="range" min="0" max="100"></label>
+            <label><span>Recorrido radial <output id="groupSweepValue"></output></span><input id="groupSweep" type="range" min="30" max="360"></label>
+            <label class="check"><input id="moveGroup" type="checkbox" checked>Mover el grupo al arrastrar</label>
+            <button id="ungroup" class="wide">Desvincular grupo</button>
+          </div>
+          <label id="itemWidthLabel"><span>Tamaño del elemento <output id="widthValue"></output></span><input id="itemWidth" type="range" min="0.2" max="95" step=".1"></label>
+          <div id="textTools" hidden>
+            <button id="editTextOnCanvas" class="wide">Editar sobre la imagen</button>
+            <label class="check"><input id="textContainer" type="checkbox">Cápsula de fondo</label>
+            <label>Texto<input id="textContent" type="text" maxlength="100"></label>
+            <label>Tipografía<select id="fontFamily"><option value="Clamofte">Clamofte</option><option value="Sentient">Sentient</option><option value="Arial">Arial</option><option value="Verdana">Verdana</option><option value="Trebuchet MS">Trebuchet MS</option><option value="Georgia">Georgia</option><option value="Times New Roman">Times New Roman</option><option value="Courier New">Courier New</option></select></label>
+            <div id="containerControls" hidden>
+              <label>Color del fondo<select id="containerColor"></select></label>
+              <label>Color del texto<select id="textColor"></select></label>
+              <label><span>Margen lateral <output id="containerPaddingValue"></output></span><input id="containerPadding" type="range" min="0" max="200" value="45"></label>
+              <label><span>Redondez <output id="containerRadiusValue"></output></span><input id="containerRadius" type="range" min="0" max="100" value="100"></label>
+              <label><span>Blur del fondo <output id="containerBlurValue"></output></span><input id="containerBlur" type="range" min="0" max="20" step="0.5" value="0"></label>
+            </div>
+            <label><span>Blur del texto <output id="textBlurValue">0 px</output></span><input id="textBlur" type="range" min="0" max="4" step="0.1" value="0"></label>
+            <label><span>Tamaño <output id="fontValue"></output></span><input id="fontSize" type="range" min="10" max="56"></label>
+            <label><span><span id="textOpacityLabel">Opacidad de texto</span><output id="textOpacityValue"></output></span><input id="textOpacity" type="range" min="20" max="100"></label>
+          </div>
+          <div id="itemActions" class="presets"><button id="duplicate">Duplicar</button><button id="delete">Eliminar</button><button id="back">Bajar capa</button><button id="front">Subir capa</button></div>
+        </div>
+      </section>
+      <div id="elementInspectorAnchor"></div>
+      <section id="outputTools">
+        <h2>Fondo y exportación</h2>
+        <label class="check"><input id="transparent" type="checkbox">Fondo transparente</label>
+        <label>Color de fondo<select id="background"><option value="#fffbee">Crema</option><option value="#202c2e">Carbón</option></select></label>
+        <label>Tamaño PNG<select id="resolution"><option value="1024">1024 px de ancho</option><option value="2048" selected>2048 px de ancho</option><option value="3072">3072 px de ancho</option></select></label>
+        <button id="random" class="wide">Otra variación ↻</button>
+        <button id="reset" class="wide">Restablecer este estudio</button>
+        <p class="note">El PNG sigue la proporción del lienzo. Las recetas JSON conservan los valores y las capas editables.</p>
+      </section>
+    </aside>
+  </main>
+  <input type="file" id="file" accept="application/json,.json" hidden>
+  <script src="app.js?v=texto-colonias-01"></script><script src="renderer.js?v=texto-colonias-01"></script><script src="composition.js?v=texto-24-01"></script><script src="direct-edit.js?v=ux-06"></script><script src="numeric-edit.js?v=color-slider-01"></script><script src="web-export.js?v=1"></script>
+</body>
+</html>
+
+
