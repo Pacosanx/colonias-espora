@@ -12,10 +12,6 @@ Abrí la página publicada y usá los controles para generar composiciones, camb
 
 Tercer modo de trabajo: genera campos microscópicos con células interpretativas (bastones, esferas, espirales, levaduras con brote, filamentos y esporas) en planos de foco. Lo lejano se ve más desenfocado y lo cercano, nítido. Color por grupo: rosa = bacterias, amarillo = levaduras, verde = mohos. Exporta PNG (con fondo transparente o recorte circular de lente), receta JSON y una página web que redibuja el campo en vivo. El código está en `micro.js`.
 
-## Tipografía
-
-La herramienta puede usar **Clamofte Regular** si está instalada en el sistema. La versión demo que se usó en el prototipo está indicada por su autora para uso personal y no se incluye en este repositorio. [Consultar la fuente y su licencia](https://www.dafont.com/clamofte.font).
-
 ## Créditos
 
 Proyecto universitario de Paco Sánchez. Gráficas generativas de elaboración propia.
