@@ -4,9 +4,9 @@ Referencia de Paco: [Contraparte, 366:2703](https://www.figma.com/design/5WH8mdX
 
 Entrar en **Relaciones**, junto a Elemento, Composición y Micro. El enlace `#relaciones` abre directamente el estudio. Cada colonia se mueve con arrastre; sobre el lienzo, A/B elige colonia y las flechas la desplazan (Mayús aumenta el paso). La separación también tiene un deslizante. El contacto sigue el ángulo y el tamaño de los dos cuerpos.
 
-- **Simbiosis:** un campo de color compartido nace cuando se encuentran y ensancha el encuentro. Sus extremos dependen de la zona de contacto.
+- **Simbiosis:** las dos colonias conservan su cuerpo; sus colores se intercambian dentro del material compartido. No agrega una tercera forma ni agranda el área visible.
 - **Rechazo:** A conserva su forma; un halo de exclusión recorta B. Puede actuar antes de que se toquen los cuerpos.
-- **Barrera:** ambos frentes se recortan alrededor de una frontera común, con una franja y una línea irregular.
+- **Barrera:** ambos frentes se recortan alrededor de una frontera común difusa, con grano en el borde y una variación de densidad tenue, sin un trazo superpuesto.
 - **Neutro:** se conservan ambos contornos y se multiplican sus colores.
 
 Cambiar de relación conserva el par y el instante. **Usar el par del esquema** aplica las familias cromáticas de esa referencia; no cambia posiciones ni identifica especies. **Comparar las cuatro** repite exactamente el mismo par, también al moverlo en una de las vistas. **Aplicar la relación** permite comparar con la superposición de referencia. **Desarrollo del encuentro** recorre el crecimiento visual, sin unidades biológicas.
@@ -25,8 +25,16 @@ La relación es una elección de exploración gráfica. No hay reglas universale
 
 ## Comprobaciones
 
-`node herramientas/colonias/verify-relations.cjs` comprueba diferencias entre los cuatro tratamientos, superficie compartida, recorte unilateral, frontera, ausencia de efectos lejos del contacto, desactivación del efecto, intensidad cero, semilla, retroceso, alfa transparente, centros coincidentes, normalización y equivalencia del módulo web.
+`node herramientas/colonias/verify-relations.cjs` comprueba diferencias entre los cuatro tratamientos, simbiosis limitada al material existente aun con centros coincidentes y ancho máximo, recorte unilateral, frontera, suavidad y grano en los frentes, ausencia de efectos lejos del contacto, desactivación del efecto, intensidad cero, semilla, retroceso, alfa transparente, normalización y equivalencia del módulo web.
 
 Los verificadores históricos `verify.cjs` y `verify-direct.cjs` tienen dobles de DOM anteriores a los controles figurativos actuales; `verify-direct.cjs` falla al inicializar `syncFigureControls`, antes de cargar esta ampliación. No se modifican para presentar ese resultado como una comprobación nueva.
 
 Revisión en navegador: cuatro tratamientos y comparación; cambio Micro → Relaciones → Micro; carga de receta v3 guardada desde la interfaz; carga de una receta v2 de 137 capas y conservación de esas capas al alternar Relaciones/Composición; selección A/B y movimiento por flechas; arrastre que actualiza la distancia; disposición a 390 × 844 y retorno al viewport de escritorio. Sin errores de consola en el recorrido inicial. La lectura del PNG con alfa y la equivalencia del módulo web se comprueban en el verificador; la semejanza final con la intención de Paco requiere su revisión.
+
+## Corrección de Paco · 13/11/2026 · bordes e intercambio
+
+Paco pide más blur y grano en el recorte blanco de Rechazo y una frontera menos explícita en Barrera. La nueva transición utiliza la suavidad y el grano existentes para modular el alfa del frente, además de su color. En Barrera se elimina el trazo fino de alta opacidad; queda una densidad difusa tenue, entre los dos bordes.
+
+Paco rechaza la expansión descontrolada de Simbiosis. Se retira el campo elíptico añadido y se limita el intercambio cromático al material ya presente. La intensidad y el ancho regulan la mezcla; no crean superficie nueva, incluso al acercar completamente los centros. Neutro conserva su dibujado anterior. Se conservan el esquema de receta v3, los eventos, los campos y todas las salidas compartidas.
+
+La revisión visual local recorre Rechazo y Barrera en vista individual y Simbiosis con separación del 9 %, además de la comparación a separación del 26 %. Las nuevas comprobaciones de alfa protegen el límite de tamaño de Simbiosis y comprueban la textura y la suavidad de los recortes.

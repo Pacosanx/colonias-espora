@@ -14,7 +14,13 @@ const settings = R.normalize({ transparent: true, plate: false, grain: 0, irregu
 function pixels(type, overrides = {}) { const c = canvas(); R.drawPlate(c, 160, { ...settings, type, ...overrides }); return c.pixels(); }
 const area = p => { let sum = 0; for (let k = 3; k < p.length; k += 4) sum += p[k]; return sum; };
 const neutral = pixels('neutral'), symbiosis = pixels('symbiosis'), rejection = pixels('rejection'), barrier = pixels('barrier');
-assert.ok(area(symbiosis) > area(neutral) * 1.025, 'La zona compartida agrega superficie visible');
+const alpha = p => Array.from(p.filter((_, i) => i % 4 === 3));
+assert.deepEqual(alpha(symbiosis), alpha(neutral), 'Simbiosis comparte el material existente sin agrandar la mancha');
+assert.notDeepEqual(symbiosis, neutral, 'El intercambio de color se distingue de multiplicar dos colonias');
+for (const distance of [0, .04, .09, .2, .3]) for (const width of [0, 39, 100]) {
+  const pair = { a: { x: .5 - distance / 2, y: .5 }, b: { x: .5 + distance / 2, y: .5 }, width };
+  assert.deepEqual(alpha(pixels('symbiosis', pair)), alpha(pixels('neutral', pair)), 'Mucha superposición o ancho máximo no generan un tercer cuerpo');
+}
 assert.ok(area(rejection) < area(neutral) * .97, 'El rechazo retira B de la zona de exclusión');
 assert.ok(area(barrier) < area(neutral) * .97, 'La barrera separa ambos frentes');
 assert.notDeepEqual(barrier, rejection, 'La frontera bilateral difiere del recorte unilateral');
@@ -32,6 +38,9 @@ const at = (p, x, y) => Array.from(p.slice((Math.floor(y * 160) * 160 + Math.flo
 assert.deepEqual(at(rejection, .32, .5), at(neutral, .32, .5));
 assert.deepEqual(at(rejection, .72, .5), at(neutral, .72, .5));
 assert.equal(at(neutral, .05, .05)[3], 0, 'El PNG transparente no incorpora un fondo opaco');
+function transitionCount(p) { let count = 0; for (let x = 88; x < 104; x++) { const value = p[(80 * 160 + x) * 4 + 3]; if (value > 8 && value < 245) count++; } return count; }
+assert.ok(transitionCount(pixels('rejection', { blur: 70 })) > transitionCount(pixels('rejection', { blur: 10 })), 'La suavidad abre una transición más amplia en el recorte');
+for (const type of ['rejection', 'barrier']) assert.notDeepEqual(alpha(pixels(type, { grain: 40 })), alpha(pixels(type, { grain: 0 })), 'El grano también afecta el frente, no solo su color: ' + type);
 for (const type of Object.keys(R.types)) {
   const p = pixels(type, { a: { x: .5, y: .5 }, b: { x: .5, y: .5 } });
   assert.ok(area(p) > 0, 'Centros coincidentes siguen siendo renderizables');
@@ -50,5 +59,5 @@ assert.ok(Math.hypot(bad.a.x - .5, bad.a.y - .5) < .3);
   vm.runInContext('artwork.setProgress(.3);artwork.setProgress(1)', context);
   assert.deepEqual(target.pixels(), symbiosis);
   vm.runInContext('artwork.destroy()', context);
-  console.log('PASS: cuatro relaciones, efecto desactivado, contacto local, área compartida, exclusión unilateral, frontera, PNG alfa, semilla, retroceso, centros coincidentes, validación y módulo web equivalente.');
+  console.log('PASS: cuatro relaciones, simbiosis acotada incluso con superposición máxima, frentes suaves y granulados, efecto desactivado, contacto local, PNG alfa, semilla, retroceso, centros coincidentes, validación y módulo web equivalente.');
 })().catch(e => { console.error(e); process.exitCode = 1; });
