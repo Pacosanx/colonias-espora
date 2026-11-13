@@ -126,13 +126,38 @@ function microRender(target, W, H, P) {
     return { g, f, p, c, w: width };
   }
 
+  // Rectángulo que ocupan todas las piezas de una célula (hifas y cadenas incluidas)
+  function boundsOf(cell) {
+    let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+    const grow = (x, y, rx, ry) => { x0 = Math.min(x0, x - rx); x1 = Math.max(x1, x + rx); y0 = Math.min(y0, y - ry); y1 = Math.max(y1, y + ry); };
+    for (const q of cell.p) {
+      if (q.k === 'ell') { const c = Math.cos(q.a), n = Math.sin(q.a); grow(q.x, q.y, Math.hypot(q.rx * c, q.ry * n), Math.hypot(q.rx * n, q.ry * c)); }
+      else if (q.k === 'cap') { const h = q.len / 2; grow(q.x, q.y, Math.abs(Math.cos(q.a)) * h + q.r, Math.abs(Math.sin(q.a)) * h + q.r); }
+      else if (q.k === 'line') for (const [x, y] of q.pts) grow(x, y, q.w / 2, q.w / 2);
+    }
+    return [x0, y0, x1, y1];
+  }
+  // Una sola célula: se agranda hasta ocupar cerca de la mitad del cuadro y queda centrada
+  function centerCell(cell, cx, cy) {
+    let [x0, y0, x1, y1] = boundsOf(cell);
+    const k = Math.min(Math.max(Math.min(.5 * H / (y1 - y0), .5 * W / (x1 - x0)), .5), 7), mx = (x0 + x1) / 2, my = (y0 + y1) / 2;
+    const fx = x => cx + (x - mx) * k, fy = y => cy + (y - my) * k;
+    for (const q of cell.p) {
+      if (q.pts) q.pts = q.pts.map(([x, y]) => [fx(x), fy(y)]); else { q.x = fx(q.x); q.y = fy(q.y); }
+      if (q.k === 'ell') { q.rx *= k; q.ry *= k; } else if (q.k === 'cap') { q.len *= k; q.r *= k; } else if (q.k === 'line') q.w *= k;
+    }
+  }
+
   const weights = planes === 1 ? [1] : planes === 2 ? [.55, .45] : [.42, .33, .25];   // lejos → cerca
-  for (let i = 0; i < Math.round(P.count); i++) {
+  const total = Math.round(P.count), single = total === 1;           // una sola célula: va al frente y centrada
+  for (let i = 0; i < total; i++) {
     let r = rnd(), plane = 0; for (; plane < planes - 1; plane++) { r -= weights[plane]; if (r < 0) break; }
+    if (single) plane = planes - 1;
     const [g, f] = pick(enabled);
     const depth = planes === 1 ? 1 : plane / (planes - 1);           // 0 lejos · 1 cerca
-    const sz = base * (1 + (rnd() - .5) * P.sizeVar / 50) * (1.25 - depth * .25);
-    const cell = makeCell(g, f, between(-.04, 1.04) * W, between(-.06, 1.06) * H, sz);
+    const sz = single ? base : base * (1 + (rnd() - .5) * P.sizeVar / 50) * (1.25 - depth * .25);
+    const cell = makeCell(g, f, single ? W / 2 : between(-.04, 1.04) * W, single ? H / 2 : between(-.06, 1.06) * H, sz);
+    if (single) centerCell(cell, W / 2, H / 2);
     cell.plane = plane; cell.depth = depth;
     cell.ringed = depth < .99 && rnd() < P.rings / 100;
     cells.push(cell);
@@ -218,7 +243,7 @@ function microRender(target, W, H, P) {
   };
   const RATIOS = { landscape: 9 / 16, strip: 1 / 3, square: 1, portrait: 5 / 4 };
   const RANGES = [
-    ['count', 'Cantidad de células', 4, 140, 1, ''],
+    ['count', 'Cantidad de células', 1, 140, 1, ''],
     ['size', 'Tamaño', 30, 250, 1, '%'],
     ['sizeVar', 'Variación de tamaño', 0, 100, 1, '%'],
     ['planes', 'Planos de foco', 1, 3, 1, ''],
