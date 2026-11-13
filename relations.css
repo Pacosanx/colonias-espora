@@ -1,0 +1,28 @@
+/* Extensión del laboratorio: mismos controles y paleta, foco sin aros. */
+#relationsMode{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between}
+#relationsMode small{font-size:9px;letter-spacing:1px;opacity:.7}
+.mode-switch:has(#microMode){grid-template-columns:1fr 1fr!important}
+.mode-switch:has(#microMode) #relationsMode{grid-column:auto}
+.mode-switch:has(#microMode) #relationsMode small{display:none}
+body[data-relations] #compositionTools,body[data-relations] #addTools,body[data-relations] #elementToolsAnchor,body[data-relations] #layerTools,body[data-relations] #elementInspectorAnchor,body[data-relations] #outputTools,body[data-relations] #timeline,body[data-relations] #resizeHandles{display:none!important}
+.relation-options{display:grid;gap:7px}
+.relation-options button{text-align:left;min-height:54px;display:flex;flex-direction:column;gap:5px}
+.relation-options button small{font-size:10px;color:#aeb6a6}
+.relation-options button[aria-pressed=true]{background:#c5e899;color:#182218}
+.relation-options button[aria-pressed=true] small{color:#34472c}
+.relation-readout{display:grid;grid-template-columns:1fr auto;gap:12px;margin:14px 0;color:#aeb6a6;font-size:12px}
+.relation-readout strong{font-weight:400;color:#c5e899;text-align:right}
+#relationDescription{font-size:12px;line-height:1.6;color:#c2c8bb}
+.relation-caption{color:#b6d88c;font-size:12px;line-height:1.6}
+.relation-output-note{margin:0 0 14px;color:#aeb6a6;font-size:11px;line-height:1.6}
+.relation-timeline{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:12px 20px;background:#1b1e1a;border-top:1px solid #343731}
+.relation-timeline label{margin:0;grid-column:1/-1;font-size:11px}
+.relation-timeline output{border:0;cursor:default;font-size:11px;min-width:38px}
+.relation-timeline small{grid-column:1/-1;color:#9aa391;font-size:10px}
+.relation-timeline button{min-width:36px}
+body[data-relations] :is(button,select,input,summary,output,canvas):focus-visible{outline:none;box-shadow:none;filter:brightness(1.3)}
+body[data-relations] :is(button,select,summary,output):focus-visible{background:#4c593e;color:#f1ffdc}
+body[data-relations] #canvas:focus-visible{background:#b6c6a61a}
+body[data-relations] output.relation-static{border:0;cursor:default}
+@media(max-width:1050px){#relationAppearance,#relationOutput{min-width:0}#relationReadings{grid-column:1/-1}}
+@media(max-width:700px){.relation-timeline{padding:12px 14px}#relationsMode{min-height:42px}}
