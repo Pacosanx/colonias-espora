@@ -239,11 +239,11 @@ function microRender(target, W, H, P) {
     groups: { bacterias: true, levaduras: true, mohos: true },
     forms: { baston: true, coco: true, cadena: true, racimo: false, espiral: true, levadura: true, pseudohifa: false, hifa: true, esporas: true },
     count: 36, size: 100, sizeVar: 45, planes: 3, farBlur: 34, frontBlur: 8, rings: 25,
-    rim: 28, fill: 'fondo', background: '#202c2e', washes: 65, grain: 24, format: 'landscape', lens: false
+    rim: 28, fill: 'fondo', background: '#202c2e', washes: 65, grain: 24, format: 'landscape', customWidth: 1920, customHeight: 5500, lens: false
   };
   const RATIOS = { landscape: 9 / 16, strip: 1 / 3, square: 1, portrait: 5 / 4 };
   const RANGES = [
-    ['count', 'Cantidad de células', 1, 140, 1, ''],
+    ['count', 'Cantidad de células', 0, 140, 1, ''],
     ['size', 'Tamaño', 30, 250, 1, '%'],
     ['sizeVar', 'Variación de tamaño', 0, 100, 1, '%'],
     ['planes', 'Planos de foco', 1, 3, 1, ''],
@@ -271,7 +271,8 @@ function microRender(target, W, H, P) {
       else if (typeof raw[k] === typeof MICRO_BASE[k]) out[k] = raw[k];
     }
     for (const [k, , min, max] of RANGES) out[k] = Math.min(max, Math.max(min, out[k]));
-    if (!(out.format in RATIOS)) out.format = 'landscape';
+    if (!(out.format in RATIOS) && out.format !== 'custom') out.format = 'landscape';
+    for (const k of ['customWidth','customHeight']) out[k] = Number.isFinite(out[k]) ? Math.max(16, Math.min(8192, Math.round(out[k]))) : MICRO_BASE[k];
     if (!['fondo', 'oscuro', 'vecino', 'claro', 'vacio'].includes(out.fill)) out.fill = 'fondo';
     if (out.background !== 'transparent' && !/^#[0-9a-f]{6}$/i.test(out.background)) out.background = MICRO_BASE.background;
     return out;
@@ -311,9 +312,10 @@ function microRender(target, W, H, P) {
       <option value="transparent">Transparente</option></select></label>
     <label>Formato<select id="microFormat">
       <option value="landscape">Horizontal · 16:9 (pantalla)</option><option value="strip">Franja · 3:1</option>
-      <option value="square">Cuadrado · 1:1</option><option value="portrait">Vertical · 4:5</option></select></label>
+      <option value="square">Cuadrado · 1:1</option><option value="portrait">Vertical · 4:5</option><option value="custom">Personalizado · píxeles</option></select></label>
+    <div id="microDimensions" hidden><label>Ancho en píxeles <input type="number" id="microWidth" min="16" max="8192" step="1"></label><label>Alto en píxeles <input type="number" id="microHeight" min="16" max="8192" step="1"></label></div>
     <label class="check"><input id="microLens" type="checkbox"> Recorte circular (lente)</label>
-    <p class="note">Usá "Exportar PNG" arriba (toma el tamaño de "Tamaño PNG"). Con fondo transparente o lente, el PNG queda listo para superponer en el prototipo.</p>`;
+    <p class="note">Usá "Exportar PNG" arriba. En formato personalizado se usan exactamente el ancho y el alto indicados. Con fondo transparente o lente, el PNG queda listo para superponer en el prototipo.</p>`;
   $('editPanel').prepend(right);
 
   function addRanges(host, keys) {
@@ -321,7 +323,8 @@ function microRender(target, W, H, P) {
       const l = document.createElement('label');
       l.innerHTML = `<span>${title}<output id="mi_${k}Value"></output></span><input id="mi_${k}" type="range" min="${min}" max="${max}" step="${step}">`;
       host.append(l);
-      $('mi_' + k).addEventListener('input', () => { P[k] = +$('mi_' + k).value; $('mi_' + k + 'Value').value = P[k] + unit; draw(); });
+      if(k === 'count'){const number=document.createElement('input');number.type='number';number.id='microCountNumber';number.min=min;number.max=max;number.step=step;number.setAttribute('aria-label','Cantidad de células');l.append(number);number.addEventListener('input',()=>{if(number.value===''||!Number.isFinite(number.valueAsNumber))return;P.count=Math.max(min,Math.min(max,Math.round(number.valueAsNumber)));$('mi_count').value=P.count;$('mi_countValue').value=P.count;draw()});number.addEventListener('change',()=>{number.value=P.count})}
+      $('mi_' + k).addEventListener('input', () => { P[k] = +$('mi_' + k).value; $('mi_' + k + 'Value').value = P[k] + unit; if(k==='count')$('microCountNumber').value=P.count; draw(); });
     }
   }
   addRanges($('microRangesA'), ['count', 'size', 'sizeVar']);
@@ -330,7 +333,8 @@ function microRender(target, W, H, P) {
   left.querySelectorAll('[data-form]').forEach(i => i.addEventListener('change', () => { P.forms[i.dataset.form] = i.checked; draw(); }));
   $('microFill').onchange = () => { P.fill = $('microFill').value; draw(); };
   $('microBg').onchange = () => { P.background = $('microBg').value; draw(); };
-  $('microFormat').onchange = () => { P.format = $('microFormat').value; microFit(); draw(); };
+  $('microFormat').onchange = () => { P.format = $('microFormat').value; $('microDimensions').hidden=P.format!=='custom'; microFit(); draw(); };
+  for(const [id,key] of [['microWidth','customWidth'],['microHeight','customHeight']]) { const input=$(id); const update=()=>{if(input.value===''||!Number.isFinite(input.valueAsNumber))return;P[key]=Math.max(16,Math.min(8192,Math.round(input.valueAsNumber)));microFit();draw()};input.addEventListener('input',update);input.addEventListener('change',()=>{update();input.value=P[key]}) }
   $('microLens').onchange = () => { P.lens = $('microLens').checked; draw(); };
   $('microNew').onclick = () => { P.seed = Math.floor(Math.random() * 100000); draw(); };
 
@@ -341,13 +345,14 @@ function microRender(target, W, H, P) {
     for (const [k, , , , , unit] of RANGES) { $('mi_' + k).value = P[k]; $('mi_' + k + 'Value').value = P[k] + unit; }
     left.querySelectorAll('[data-group]').forEach(i => i.checked = P.groups[i.dataset.group]);
     left.querySelectorAll('[data-form]').forEach(i => i.checked = P.forms[i.dataset.form]);
-    $('microFill').value = P.fill; $('microBg').value = P.background; $('microFormat').value = P.format; $('microLens').checked = P.lens;
+    $('microFill').value = P.fill; $('microBg').value = P.background; $('microFormat').value = P.format; $('microLens').checked = P.lens; $('microCountNumber').value=P.count; $('microWidth').value=P.customWidth; $('microHeight').value=P.customHeight; $('microDimensions').hidden=P.format!=='custom';
     syncDisabled();
   }
 
+  function microRatio() { return P.format==='custom' ? P.customHeight/P.customWidth : RATIOS[P.format]; }
   function microFit() {
-    const box = document.querySelector('.workspace').getBoundingClientRect(), r = RATIOS[P.format];
-    const w = Math.max(100, Math.min(box.width - 60, (box.height - 40) / r));
+    const box = document.querySelector('.workspace').getBoundingClientRect(), r = microRatio();
+    const w = Math.max(1, Math.min(box.width - 60, (box.height - 40) / r));
     $('art').style.width = w + 'px'; $('art').style.height = (w * r) + 'px'; $('art').style.aspectRatio = '1 / ' + r;
   }
   function draw() {
@@ -355,7 +360,7 @@ function microRender(target, W, H, P) {
     requestAnimationFrame(() => {
       queued = false; if (!on) return;
       const w = Math.min(1600, Math.round($('art').getBoundingClientRect().width * Math.min(2, devicePixelRatio || 1)) || 1200);
-      microRender($('canvas'), w, w * RATIOS[P.format], P);
+      microRender($('canvas'), w, w * microRatio(), P);
       const clear = P.background === 'transparent' || P.lens;
       $('art').classList.toggle('checker', clear); $('art').style.backgroundColor = clear ? '' : P.background;
       $('name').textContent = `Micro / ${Math.round(P.count)} células · semilla ${P.seed}`;
@@ -396,10 +401,10 @@ function microRender(target, W, H, P) {
   };
 
   function exportPNG() {
-    const n = +$('resolution').value; $('status').textContent = 'Preparando PNG…';
+    const n = +$('resolution').value, width=P.format==='custom'?P.customWidth:n, height=P.format==='custom'?P.customHeight:Math.round(n*microRatio()); $('status').textContent = 'Preparando PNG…';
     setTimeout(() => {
       try {
-        const c = microRender(document.createElement('canvas'), n, n * RATIOS[P.format], P);
+        const c = microRender(document.createElement('canvas'), width, height, P);
         c.toBlob(b => { if (!b) { status('No se pudo generar el PNG.'); return; } download(b, `micro-${P.seed}.png`); status(`PNG de ${c.width} × ${c.height} descargado.`); }, 'image/png');
       } catch (e) { status('No se pudo exportar: ' + e.message); }
     }, 40);
@@ -434,3 +439,4 @@ dibujar(); addEventListener('resize', dibujar);
     else if (t.id === 'exportWeb') exportWeb();
   }, true);
 })();
+
